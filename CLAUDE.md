@@ -5,7 +5,16 @@ file refines them for this project.
 
 ## What this project is about
 
-One or two sentences. `/ingest` scores relevance against this section.
+Generative, interactive **world models**: models that learn to predict what a
+scene or environment looks like next, conditioned on actions or camera poses,
+and can be rolled out as a simulator. In scope: action-conditioned video
+models (Genie, Cosmos, Oasis-style), novel-view / spatial models (World Labs
+Atlas and Marble, NeRF and 3DGS lineage), causal and autoregressive diffusion
+(diffusion forcing, self-forcing, exposure bias), latent-predictive models
+(V-JEPA), and real-to-sim-to-real uses for robotics. Three jobs: log recent
+research, run open models locally on one 16 GB GPU, and prototype new ideas.
+Dreamer-style latent dynamics for RL control belong to `../ai-robotics`;
+cross-link rather than duplicate.
 
 ## Layout
 
@@ -40,7 +49,8 @@ ceiling.
 
 ## Project-specific facts
 
-- Primary language: (fill in)
+- Primary language: Python (PyTorch). 16 GB VRAM: prefer small/distilled
+  checkpoints, quantization, short rollouts; ask `/jobs` for a window first.
 - Environment: managed by `uv`; run `make env` to sync.
 - Data: tracked by DVC. Large artifacts on SN850X via `~/projects/`.
 

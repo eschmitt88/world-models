@@ -1,9 +1,8 @@
 # world-models
 
-**One-line description of what this project investigates.** _(Fill in when the
-project stops being exploratory — this line is the repo's tagline on GitHub.)_
+**Exploring generative, interactive world models: tracking the research, running open models on a single GPU, and prototyping ideas.**
 
-📂 **[Browse this repo →](https://<owner>.github.io/world-models/)** —
+📂 **[Browse this repo →](https://eschmitt88.github.io/world-models/)** —
 interactive, always-live view of experiments, concepts, literature, and maps of
 content. Served via GitHub Pages from `docs/index.html`; reads the live file
 tree, no build step. _(Link is live once the repo is public and Pages is enabled
@@ -11,8 +10,13 @@ tree, no build step. _(Link is live once the repo is public and Pages is enabled
 
 ## What this is
 
-A paragraph on the question, the data, and what success looks like. Keep it
-oriented at a visitor who has never seen the repo.
+A world model predicts how a scene changes as you act in it or move through
+it: the next frame given an action, or the view from a new camera pose. These
+models are converging on causal, autoregressive diffusion transformers you can
+roll out interactively, like a learned simulator. This repo keeps a literature
+log of the field, runs open checkpoints locally to see what they actually do
+(consistency, drift over long rollouts, controllability), and prototypes small
+ideas that fit on one 16 GB GPU.
 
 ## How it's organized
 
