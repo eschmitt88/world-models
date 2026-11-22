@@ -1,0 +1,31 @@
+# Hard ceilings for autonomous runs; a chain halts when any is hit.
+# A tripped ceiling stops the NEXT call, not the one in flight, so real
+# spend overshoots by up to one call (40% measured in the wild). Size each
+# ceiling 10-15% below your true tolerance.
+max_wall_hours: 24
+max_tokens: 5000000
+max_experiments: 20
+max_consecutive_no_improvement: 3
+max_disk_gb: 500
+
+# standard = propose and wait. max = act while the coordinator's verdict
+# permits and the ceilings above hold (~/claude-system/claude/rules/agency.md).
+agency: standard
+
+# Model roles: skill defaults, overridden by CLI flags. An alias floats to
+# the latest release; pin a concrete ID for reproducibility, or use
+# haiku/sonnet for a cheaper implementer.
+models:
+  ideator: "opus"
+  implementer: "opus"
+
+# Hardware hints (read by /implement, surfaced to the subagent).
+# new_project.sh fills these from the machine at scaffold time; correct
+# them if the box changes.
+hardware:
+  gpu_model: "NVIDIA GeForce RTX 5080"
+  gpu_memory_gb: 16
+  gpu_count: 1
+  system_ram_gb: 91
+  storage_path: "/home/eschmitt/projects/research"
+  storage_free_gb: 2332
