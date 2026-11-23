@@ -39,3 +39,4 @@ _meta/token_log.ndjson
 # Full-resolution rollout videos (regenerable; previews are committed separately)
 experiments/*/results/videos/
 experiments/*/results/run*.log
+experiments/*/results/*/samples/

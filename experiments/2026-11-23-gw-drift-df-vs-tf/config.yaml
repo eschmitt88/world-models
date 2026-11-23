@@ -1,0 +1,11 @@
+# Gridworld world models: diffusion forcing vs teacher forcing, drift with known state (ADR 0001, experiment 1).
+seed: 42
+world: {map_size_tiles: 64, n_train_maps: 2000, n_heldout_maps: 200, view_px: 64, tile_px: 8, step_px: 2, shading: 0.25}
+model: {d: 384, depth: 8, heads: 6, window: 32, patch: 8}     # ~22M params
+train: {batch: 32, lr: 3.0e-4, hours_per_arm: 4.0}
+arms: [df, tf]
+eval:
+  sampler_steps: 10
+  context_frames: 31
+  long_rollout: {n: 32, horizon: 480, actions: [walk, still]}   # 'still' = no-op: every cell is determined
+  ctx_noise: [0.0, 0.05, 0.1, 0.2, 0.4]

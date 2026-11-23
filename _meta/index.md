@@ -20,7 +20,7 @@ and `/new-experiment`.
 
 ## Active experiments
 
-(none)
+- `experiments/2026-11-23-gw-drift-df-vs-tf/`: our own 2D world, diffusion forcing vs teacher forcing, drift against true state
 
 ## Finished experiments
 
