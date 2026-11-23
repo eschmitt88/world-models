@@ -18,3 +18,7 @@ has the exact time.
 2026-11-23 ingest raw/papers/yin2024from.pdf
 2026-11-23 ingest raw/papers/bruce2024genie.pdf
 2026-11-23 ingest raw/papers/assran2025vjepa.pdf
+2026-11-23 fetch-paper 2503.14489 → raw/papers/zhou2025stable.pdf
+2026-11-23 fetch-paper 2508.13009 → raw/papers/zhang2025matrix.pdf
+2026-11-23 ingest raw/papers/zhou2025stable.pdf
+2026-11-23 ingest raw/papers/zhang2025matrix.pdf
