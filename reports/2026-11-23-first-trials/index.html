@@ -1,0 +1,352 @@
+<title>Look Away, Look Back</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column (~68ch) with wide breakout figures for clips and charts; a lab-notebook register, findings first. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #12151c;
+  --ink-2: #4a5160;
+  --ink-3: #737a88;
+  --rule: #dde1e8;
+  --accent: #2a5bd7;
+  --accent-soft: #e6ecfb;
+  --s1: #2a78d6;  /* MG3 memory on  */
+  --s2: #eb6834;  /* MG2            */
+  --s3: #1baf7a;  /* MG3 memory off */
+  --band: #e9ebf0;
+  --good: #1f7a4d;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101318; --surface: #171b22; --ink: #eceef3; --ink-2: #b4bac6; --ink-3: #8a91a0;
+    --rule: #2a303b; --accent: #7fa2f5; --accent-soft: #1d2740;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --band: #222833; --good: #4cc38a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101318; --surface: #171b22; --ink: #eceef3; --ink-2: #b4bac6; --ink-3: #8a91a0;
+  --rule: #2a303b; --accent: #7fa2f5; --accent-soft: #1d2740;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --band: #222833; --good: #4cc38a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body);
+  font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.col { max-width: 46rem; margin: 0 auto; }
+.wide { max-width: 64rem; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.55rem; font-weight: 600; letter-spacing: -0.01em; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); font-size: 0.86em; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+header.top { padding-block: 56px 28px; display: grid; gap: 14px; }
+.lede { font-size: 1.15rem; color: var(--ink-2); max-width: 40rem; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--ink-3); font-size: 0.85rem; }
+.meta span { font-family: var(--font-mono); }
+section { padding-block: 36px; border-top: 1px solid var(--rule); display: grid; gap: 18px; }
+.findings { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); padding-block: 8px 28px; }
+.finding { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.finding .num { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.finding .num small { font-size: 0.95rem; font-weight: 500; color: var(--ink-3); margin-left: 4px; }
+.finding p { color: var(--ink-2); font-size: 0.92rem; line-height: 1.5; }
+.finding .tag { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+figcaption { font-size: 0.86rem; color: var(--ink-3); line-height: 1.5; }
+video, .poster { width: 100%; max-width: 100%; border-radius: 8px; background: #000; display: block; }
+.clips { display: grid; gap: 18px; }
+.clip-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.clip-tabs button {
+  font: 500 0.85rem var(--font-body); color: var(--ink-2); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px; cursor: pointer;
+}
+.clip-tabs button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.clip-tabs button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.two { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+.chart { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 14px 8px; position: relative; min-width: 0; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .ttl { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
+.chart .sub { font-size: 0.8rem; color: var(--ink-3); margin-bottom: 6px; }
+.axis text, .lbl { font-family: var(--font-mono); font-size: 10.5px; fill: var(--ink-3); }
+.axis line, .axis path { stroke: var(--rule); }
+.grid line { stroke: var(--rule); stroke-dasharray: 2 3; }
+.dlabel { font-family: var(--font-body); font-size: 11.5px; font-weight: 600; fill: var(--ink); }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font: 12px/1.4 var(--font-mono); padding: 6px 8px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -115%); }
+details { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 8px 12px; }
+summary { cursor: pointer; font-size: 0.85rem; color: var(--ink-2); }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; margin-top: 8px; }
+th, td { padding: 4px 10px; border-bottom: 1px solid var(--rule); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-weight: 600; color: var(--ink-2); }
+.protocol { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem); align-items: center; }
+@media (max-width: 640px) { .protocol { grid-template-columns: 1fr; } }
+.note { font-size: 0.88rem; color: var(--ink-2); background: var(--surface); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; }
+ul.plain li { color: var(--ink-2); }
+a { color: var(--accent); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.8rem; color: var(--ink-2); margin: 2px 0 4px; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="col">
+  <header class="top">
+    <div class="eyebrow">world-models · first trials · 23 Nov 2026</div>
+    <h1>Look away, look back</h1>
+    <p class="lede">Do open interactive world models remember a place once it leaves the screen? I ran the same test on Matrix-Game 2.0 and 3.0 on one 16 GB GPU: pan the camera away, pan it back, and check whether the original view returns.</p>
+    <div class="meta"><span>RTX 5080 · 16 GB</span><span>MG2 1.8B · 352×640</span><span>MG3 ~6.5B · 704×1280</span><span>184 rollouts</span></div>
+  </header>
+</div>
+
+<div class="wide">
+  <div class="findings">
+    <div class="finding">
+      <div class="tag">MG2 · no memory</div>
+      <div class="num">~1 s</div>
+      <p>MG2's whole spatial memory is its attention window, 6 latent frames. Look away for 2 s and come back, and it draws a new place: <b>0 of 12</b> runs recognisably return.</p>
+    </div>
+    <div class="finding">
+      <div class="tag">MG3 · retrieval memory on</div>
+      <div class="num">7 / 8<small>runs</small></div>
+      <p>After a 180° turn and back, MG3 returns to the start view (median <b>92</b> matched keypoints against <b>6</b> for unrelated scenes). Turn retrieval off in the same model and it forgets like MG2: <b>0 of 8</b>.</p>
+    </div>
+    <div class="finding">
+      <div class="tag">Standing still</div>
+      <div class="num">15 s</div>
+      <p>With no input at all, MG2 drifts until the frame is about as far from the start as an independent sample. Memory fails in time as well as in space.</p>
+    </div>
+  </div>
+</div>
+
+<div class="wide">
+  <section>
+    <div class="col" style="display:grid;gap:12px;margin:0;max-width:46rem">
+      <div class="eyebrow">See it</div>
+      <h2>Same 180° turn, memory on vs off</h2>
+      <p>Each clip shows MG3 turning right for 120 frames (180°) and back for 120 more. The left panel holds the true start view for comparison. Watch the last second: with memory on, the scene comes back. With memory off, MG3 confidently invents a new place.</p>
+    </div>
+    <div class="clips">
+      <div class="clip-tabs" role="group" aria-label="Choose a start scene">
+        <button type="button" id="tab-001" data-clip="001" aria-pressed="true">Gas-station town</button>
+        <button type="button" id="tab-004" data-clip="004" aria-pressed="false">Graveyard hill</button>
+        <button type="button" id="tab-010" data-clip="010" aria-pressed="false">Snowy fence</button>
+        <button type="button" id="tab-007" data-clip="007" aria-pressed="false">Low-poly forest</button>
+      </div>
+      <figure>
+        <video id="mg3clip" src="assets/mg3_mem_001.mp4" poster="assets/mg3_mem_001.jpg" controls muted loop playsinline preload="metadata"></video>
+        <figcaption>Matrix-Game 3.0 (distilled, 3 steps), 704×1280 rendered and shown here at 320 px per panel. Same seed, same actions; only the 5 retrieved memory latents differ. The still poster frame is the return moment.</figcaption>
+      </figure>
+    </div>
+  </section>
+</div>
+
+<div class="wide">
+  <section>
+    <div class="col" style="display:grid;gap:12px;margin:0;max-width:46rem">
+      <div class="eyebrow">Measure it</div>
+      <h2>Does the start view come back?</h2>
+      <p>I score a return as recognised by counting SIFT keypoint matches between the start frame and the return frame that survive a RANSAC homography fit. A different place gives a handful of chance matches; the same place, even re-textured and a few degrees off, gives dozens to hundreds.</p>
+    </div>
+    <div class="two">
+      <div class="chart" id="chart-geo">
+        <div class="ttl">Matched keypoints, start vs return</div>
+        <div class="sub">Median over runs · log scale · shaded band = unrelated scenes (max 17)</div>
+        <div class="legend"><span><i style="background:var(--s1)"></i>MG3 memory on</span><span><i style="background:var(--s3)"></i>MG3 memory off</span><span><i style="background:var(--s2)"></i>MG2</span></div>
+      </div>
+      <div class="chart" id="chart-lpips">
+        <div class="ttl">MG2: how fast a view is forgotten</div>
+        <div class="sub">LPIPS between frames with the same heading, by time apart · lower = more similar</div>
+        <div class="legend"><span><i style="background:var(--s2)"></i>pan away and back</span><span><i style="background:var(--ink-3)"></i>camera still</span></div>
+      </div>
+    </div>
+    <details>
+      <summary>Show the numbers as tables</summary>
+      <div class="tbl" id="tables"></div>
+    </details>
+    <div class="col note" style="margin:0;max-width:46rem">LPIPS, the usual pixel-perceptual metric, barely registers MG3's memory: 0.49 with memory on against 0.56 off at the 180° turn. The model brings back the place, not the pixels. Texture is re-synthesised and the heading lands a few degrees short, because MG3 turns about 10.4 px per frame one way and 9.7 the other. Judged by LPIPS alone, MG3's memory would look like a rounding error.</div>
+  </section>
+</div>
+
+<div class="wide">
+  <section>
+    <div class="protocol">
+      <div style="display:grid;gap:12px;min-width:0">
+        <div class="eyebrow">Protocol</div>
+        <h2>Out and back</h2>
+        <p>Hold still for 8 frames, turn right at a fixed mouse rate for <i>T</i> frames, turn left at the same rate for <i>T</i> frames. Frames at <span class="mono">t<sub>peak</sub> − k</span> and <span class="mono">t<sub>peak</sub> + k</span> share a heading, so their similarity across all <i>k</i> traces a memory curve. The return frame is the hardest case.</p>
+        <p>MG2: 4 start images × 3 seeds × <span class="mono">T ∈ {12, 24, 48, 96, 192}</span>, plus a matched camera-still control. MG3: 4 images × 2 seeds × <span class="mono">T ∈ {24, 48, 96, 120}</span> × memory on/off. At these yaw rates the start view is fully off screen after ~70 frames.</p>
+      </div>
+      <svg viewBox="0 0 240 150" role="img" aria-label="Camera heading over time: flat, ramp up for T frames, ramp down for T frames">
+        <line x1="20" y1="120" x2="230" y2="120" stroke="var(--rule)"/>
+        <line x1="20" y1="20" x2="20" y2="120" stroke="var(--rule)"/>
+        <polyline points="20,120 40,120 130,30 220,120" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="40" cy="120" r="4" fill="var(--accent)"/><circle cx="220" cy="120" r="4" fill="var(--accent)"/>
+        <line x1="95" y1="65" x2="165" y2="65" stroke="var(--ink-3)" stroke-dasharray="3 3"/>
+        <circle cx="95" cy="65" r="3" fill="var(--ink-3)"/><circle cx="165" cy="65" r="3" fill="var(--ink-3)"/>
+        <text x="130" y="60" text-anchor="middle" class="lbl">same heading</text>
+        <text x="40" y="138" text-anchor="middle" class="lbl">start</text>
+        <text x="220" y="138" text-anchor="middle" class="lbl">return</text>
+        <text x="130" y="22" text-anchor="middle" class="lbl">T frames → ← T frames</text>
+        <text x="12" y="70" text-anchor="middle" class="lbl" transform="rotate(-90 12 70)">heading</text>
+      </svg>
+    </div>
+  </section>
+</div>
+
+<div class="wide">
+  <section>
+    <div class="col" style="display:grid;gap:12px;margin:0;max-width:46rem">
+      <div class="eyebrow">MG2 up close</div>
+      <h2>Inside the window, then gone</h2>
+      <p>A 24-frame round trip (left) stays inside MG2's attention window and comes back nearly intact. A 192-frame round trip (right) does not: the village square is replaced by another plausible village. In the stylized-village run, the camera wanders under an eave into near darkness. That happens in 6 of 120 long pans. Dropping those runs doesn't change the result.</p>
+    </div>
+    <div class="two">
+      <figure><video src="assets/mg2_outback_0013_T12.mp4" poster="assets/mg2_outback_0013_T12.jpg" controls muted loop playsinline preload="metadata"></video><figcaption>Village, T = 12 (round trip 0.96 s). Return LPIPS ≈ 0.10.</figcaption></figure>
+      <figure><video src="assets/mg2_outback_0003_T96.mp4" poster="assets/mg2_outback_0003_T96.jpg" controls muted loop playsinline preload="metadata"></video><figcaption>Real street photo, T = 96 (round trip 7.7 s). The street comes back as a different street.</figcaption></figure>
+    </div>
+    <div class="two">
+      <figure><video src="assets/mg2_monet.mp4" poster="assets/mg2_monet.jpg" controls muted loop playsinline preload="metadata"></video><figcaption>Walking forward from Monet's <i>Haystack</i>. The start image anchors only the first second. By ~4 s the painting has become a game-engine snow village.</figcaption></figure>
+      <div style="display:grid;gap:10px;align-content:start;min-width:0">
+        <h3>What MG2 is</h3>
+        <p style="color:var(--ink-2)">A 1.8B causal Wan-based video model, distilled to 3 denoising steps with Self Forcing, conditioned on keyboard and mouse. It attends to the last 6 latent frames (~1 s). Its only longer-range link to the start is a CLIP embedding of the first image. That embedding keeps the <i>style</i> of a place but not its layout.</p>
+        <p style="color:var(--ink-2)">On the RTX 5080 it runs at 8.5 fps (13.7 GB peak), about a third of the 25 fps reported on an H100.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!--DRIFT-->
+
+<div class="col">
+  <section>
+    <div class="eyebrow">Making it fit</div>
+    <h2>Running both on 16 GB</h2>
+    <ul class="plain">
+      <li><b>MG2</b> (README says ≥ 24 GB): encode a short prefix of the image condition, since the VAE converges on black padding frames (mean latent difference 0.0085 against std 1.26). Park the VAE encoder and CLIP on the CPU, and replace flash-attn with PyTorch SDPA.</li>
+      <li><b>MG3</b> (tested on A/H-series): keep T5-XXL on the CPU. Use int8 for every large DiT linear <i>except</i> the action module. Chunk the FFN over tokens, park the VAE encoder on the CPU, and stream the last 10 of 30 blocks from pinned CPU memory. The result runs at 1.8 fps at 720p with a ~12 GB peak.</li>
+      <li><b>One bug worth knowing:</b> int8 with per-token activation quantization on MG3's action MLP rounded the ±0.1 mouse signal to zero. The camera never turned and the first run scored a "perfect" LPIPS of 0.003. Check that actions still act after any quantization.</li>
+    </ul>
+  </section>
+  <section>
+    <div class="eyebrow">Next</div>
+    <h2>What I'd test next</h2>
+    <ul class="plain">
+      <li><b>Loop closure with parallax.</b> Walk out and back along a path, not just rotate. Field-of-view retrieval is harder when the camera translates.</li>
+      <li><b>Time vs space.</b> MG3 indexes memory by pose. Does it also stop the stand-still drift MG2 shows?</li>
+      <li><b>A layout metric instead of LPIPS.</b> Depth-map or DINOv2 patch agreement, so that re-textured but correct views count as remembered.</li>
+      <li><b>Other models.</b> Self Forcing, Matrix-Game 4.0 (engine-grounded rendering, where geometry is explicit) and V-JEPA 2.</li>
+    </ul>
+    <p class="mono" style="color:var(--ink-3)">Code, configs, raw numbers and pre-registered hypotheses: experiments/2026-11-23-mg2-memory-horizon, …-mg3-memory-ablation in the world-models repo.</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  // ---- clip switcher
+  const v = document.getElementById("mg3clip");
+  document.querySelectorAll(".clip-tabs button").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll(".clip-tabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    const id = b.dataset.clip;
+    v.poster = "assets/mg3_mem_" + id + ".jpg"; v.src = "assets/mg3_mem_" + id + ".mp4"; v.load();
+  }));
+
+  // ---- data (from results/geomatch.json and results/summary.json)
+  const FPS = 25;
+  const GEO = {
+    "MG3 memory on":  {c: "--s1", pts: [[48, 290.5], [96, 112], [192, 127.5], [240, 92.5]], n: 8},
+    "MG3 memory off": {c: "--s3", pts: [[48, 290.5], [96, 19.5], [192, 7], [240, 5]], n: 8},
+    "MG2":            {c: "--s2", pts: [[24, 139.5], [48, 60], [96, 8.5], [192, 5], [384, 6]], n: 12}
+  };
+  const LP = {
+    "pan away and back": {c: "--s2", pts: [[4,.054],[8,.06],[12,.064],[16,.073],[24,.113],[32,.178],[48,.261],[64,.372],[96,.445],[128,.559],[192,.579],[256,.605],[384,.638]]},
+    "camera still":      {c: "--ink-3", pts: [[4,.002],[8,.009],[12,.012],[16,.018],[24,.038],[32,.069],[48,.115],[64,.178],[96,.253],[128,.355],[192,.429],[256,.534],[384,.577]]}
+  };
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+
+  function chart(host, series, o) {
+    const W = Math.round(Math.min(560, Math.max(330, host.clientWidth - 28))), H = Math.round(W * 0.6), m = {l: 40, r: 108, t: 10, b: 36};
+    const svg = el("svg", {viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.aria});
+    host.appendChild(svg);
+    const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true; host.appendChild(tip);
+    const xs = v => m.l + (Math.log(v) - Math.log(o.x0)) / (Math.log(o.x1) - Math.log(o.x0)) * (W - m.l - m.r);
+    const ys = o.ylog ? v => H - m.b - (Math.log(v) - Math.log(o.y0)) / (Math.log(o.y1) - Math.log(o.y0)) * (H - m.t - m.b)
+                      : v => H - m.b - (v - o.y0) / (o.y1 - o.y0) * (H - m.t - m.b);
+    const g = el("g", {class: "grid"}, svg), ax = el("g", {class: "axis"}, svg);
+    o.yt.forEach(t => { el("line", {x1: m.l, x2: W - m.r, y1: ys(t), y2: ys(t)}, g); const tx = el("text", {x: m.l - 6, y: ys(t) + 3.5, "text-anchor": "end"}, ax); tx.textContent = o.yf(t); });
+    o.xt.forEach(t => { el("line", {x1: xs(t), x2: xs(t), y1: H - m.b, y2: H - m.b + 4}, ax); const tx = el("text", {x: xs(t), y: H - m.b + 16, "text-anchor": "middle"}, ax); tx.textContent = o.xf(t); });
+    el("line", {x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b}, ax);
+    const xl = el("text", {x: (m.l + W - m.r) / 2, y: H - 4, "text-anchor": "middle"}, ax); xl.textContent = o.xlabel;
+    if (o.band) {
+      el("rect", {x: m.l, width: W - m.l - m.r, y: ys(o.band[1]), height: ys(o.band[0]) - ys(o.band[1]), fill: css("--band")}, svg);
+      const bt = el("text", {x: m.l + 6, y: ys(o.band[1]) + 12, class: "lbl"}, svg); bt.textContent = o.bandLabel;
+    }
+    if (o.vline) {
+      el("line", {x1: xs(o.vline), x2: xs(o.vline), y1: m.t, y2: H - m.b, stroke: css("--ink-3"), "stroke-dasharray": "3 3"}, svg);
+      const vt = el("text", {x: xs(o.vline) + 4, y: m.t + 10, class: "lbl"}, svg); vt.textContent = o.vlineLabel;
+    }
+    if (o.hline) {
+      el("line", {x1: m.l, x2: W - m.r, y1: ys(o.hline), y2: ys(o.hline), stroke: css("--ink-3"), "stroke-dasharray": "1 3"}, svg);
+      const ht = el("text", {x: m.l + 6, y: ys(o.hline) - 5, class: "lbl"}, svg); ht.textContent = o.hlineLabel;
+    }
+    const labels = [];
+    Object.entries(series).forEach(([name, s]) => {
+      const col = css(s.c);
+      el("polyline", {points: s.pts.map(p => `${xs(p[0])},${ys(p[1])}`).join(" "), fill: "none", stroke: col, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round"}, svg);
+      s.pts.forEach(p => {
+        el("circle", {cx: xs(p[0]), cy: ys(p[1]), r: 4, fill: col, stroke: css("--surface"), "stroke-width": 2}, svg);
+        const hit = el("circle", {cx: xs(p[0]), cy: ys(p[1]), r: 11, fill: "transparent"}, svg);
+        hit.addEventListener("pointerenter", () => {
+          tip.textContent = `${name} · ${o.xf(p[0])} · ${o.tf(p[1])}`;
+          const r = svg.getBoundingClientRect(), hr = host.getBoundingClientRect(), k = r.width / W;
+          tip.style.left = (r.left - hr.left + xs(p[0]) * k) + "px"; tip.style.top = (r.top - hr.top + ys(p[1]) * k) + "px"; tip.hidden = false;
+        });
+        hit.addEventListener("pointerleave", () => { tip.hidden = true; });
+      });
+      const last = s.pts[s.pts.length - 1];
+      labels.push({name, y: ys(last[1]), x: xs(last[0])});
+    });
+    labels.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 14) labels[i].y = labels[i - 1].y + 14;
+    labels.forEach(L => { const t = el("text", {x: W - m.r + 8, y: L.y + 4, class: "dlabel"}, svg); t.textContent = L.name; });
+  }
+
+  const sec = f => (f / FPS) < 1 ? (f / FPS).toFixed(1) + " s" : Math.round(f / FPS) + " s";
+  chart(document.getElementById("chart-geo"), GEO, {
+    aria: "Median matched keypoints between start and return frames versus round-trip time, log scale",
+    x0: 20, x1: 420, xt: [24, 48, 96, 192, 384], xf: sec, xlabel: "round trip (look away and back)",
+    ylog: true, y0: 2, y1: 400, yt: [3, 10, 30, 100, 300], yf: t => String(t), tf: v => v + " matches",
+    band: [2, 17], bandLabel: "unrelated scenes"
+  });
+  chart(document.getElementById("chart-lpips"), LP, {
+    aria: "MG2 LPIPS between same-heading frames versus time apart, for pan-away-and-back and camera-still",
+    x0: 3.5, x1: 420, xt: [4, 12, 24, 48, 96, 192, 384], xf: sec, xlabel: "time between the two frames",
+    ylog: false, y0: 0, y1: 0.7, yt: [0, .1, .2, .3, .4, .5, .6, .7], yf: t => t.toFixed(1), tf: v => "LPIPS " + v.toFixed(3),
+    vline: 24, vlineLabel: "≈ attention window", hline: 0.55, hlineLabel: "two different seeds (0.55)"
+  });
+
+  // ---- tables
+  const T = document.getElementById("tables");
+  const tab = (title, head, rows) => `<p style="margin-top:10px;font-weight:600;font-size:.85rem">${title}</p><table><thead><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  T.innerHTML =
+    tab("Median matched keypoints (start vs return)", ["series", "round trip (frames)", "median", "runs"],
+      Object.entries(GEO).flatMap(([n, s]) => s.pts.map(p => [n, p[0], p[1], s.n]))) +
+    tab("MG2 same-heading LPIPS by gap", ["gap (frames)", "pan away and back", "camera still"],
+      LP["pan away and back"].pts.map((p, i) => [p[0], p[1].toFixed(3), LP["camera still"].pts[i][1].toFixed(3)]));
+})();
+</script>

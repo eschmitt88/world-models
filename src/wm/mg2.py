@@ -36,6 +36,16 @@ def latents_for_frames(n_frames: int) -> int:
     return int(np.ceil(L / 3) * 3)
 
 
+class _DecodeToCPU(torch.nn.Module):
+    def __init__(self, dec):
+        super().__init__()
+        self.dec = dec
+
+    def forward(self, x, *cache):
+        video, new_cache = self.dec(x, *cache)
+        return video.cpu(), new_cache
+
+
 class MG2:
     ENC_PREFIX = 21  # latent frames actually VAE-encoded for the image condition
 
@@ -70,6 +80,10 @@ class MG2:
             pipe.generator.load_state_dict(load_file(str(WEIGHTS / checkpoint)))
             self.pipe = pipe.to(device=self.device, dtype=self.dtype)
             self.pipe.vae_decoder.to(torch.float16)
+            # Upstream keeps every decoded block on the GPU until the rollout
+            # ends (~16 MB per 12 frames, ~3 GB for 2,400 frames): move each
+            # block to the CPU as soon as it is decoded.
+            self.pipe.vae_decoder = _DecodeToCPU(self.pipe.vae_decoder)
             vae = get_wanx_vae_wrapper(str(WEIGHTS), torch.float16)
             vae.requires_grad_(False).eval()
             self.vae = vae.to(self.device, self.dtype)
