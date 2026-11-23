@@ -44,7 +44,8 @@ def iterations_for_frames(n_frames: int) -> int:
 
 
 class MG3:
-    def __init__(self, height=704, width=1280, steps=3, vae_type="mg_lightvae_v2"):
+    def __init__(self, height=704, width=1280, steps=3, vae_type="mg_lightvae_v2", int8_ffn=True,
+                 offload_blocks=10):
         sys.path.insert(0, str(Path(__file__).parent / "shims"))
         sys.path.insert(0, str(MG3_DIR))
         cwd = os.getcwd(); os.chdir(MG3_DIR)
@@ -65,14 +66,80 @@ class MG3:
             mcfg = mcfg[0] if isinstance(mcfg, tuple) else mcfg
             model = WanModel.from_pretrained(mdir, torch_dtype=torch.bfloat16, **mcfg)
             model = convert_model_to_int8(model, target_layers=["q", "k", "v", "o"])
+            if int8_ffn:
+                # Beyond upstream: int8 *every* large nn.Linear inside the DiT blocks
+                # (FFN, camera injector, action module), same per-row absmax scheme
+                # as upstream's q/k/v/o. Needed to leave room for 720p activations
+                # in 16 GB. Small (<256-in) layers stay bf16.
+                from wan.modules.model import Int8Linear as _I8
+
+                class Int8Linear(_I8):
+                    # upstream reads `ffn[0].weight.dtype` to choose the activation
+                    # dtype; report bf16 so activations are not cast to int8
+                    @property
+                    def weight(self):
+                        return type("W", (), {"dtype": torch.bfloat16})()
+
+                def _q(mod):
+                    for name, ch in mod.named_children():
+                        if isinstance(ch, torch.nn.Linear) and ch.in_features >= 256 and ch.out_features >= 256:
+                            q = Int8Linear(ch.in_features, ch.out_features, bias=ch.bias is not None,
+                                           device=ch.weight.device)
+                            q.from_float(ch.weight.data)
+                            if ch.bias is not None:
+                                q.bias.data.copy_(ch.bias.data.to(torch.bfloat16))
+                            setattr(mod, name, q)
+                        else:
+                            _q(ch)
+                _q(model.blocks)
+            # FFNs act token-wise, so splitting the sequence is exact; it caps the
+            # 14336-wide intermediate (and its int8/int32 temporaries) at 4k tokens.
+            class _ChunkedFFN(torch.nn.Sequential):
+                CHUNK = 4096
+                def forward(self, x):
+                    if x.dim() == 3 and x.shape[1] > self.CHUNK:
+                        return torch.cat([super(_ChunkedFFN, self).forward(c) for c in x.split(self.CHUNK, 1)], 1)
+                    return super().forward(x)
+            for blk in model.blocks:
+                blk.ffn.__class__ = _ChunkedFFN
+            nb = sum(b.numel() * b.element_size() for b in list(model.parameters()) + list(model.buffers()))
+            print(f"[mg3] DiT weights {nb/1e9:.2f} GB", flush=True)
             self.model = model.to(device=self.device, dtype=torch.bfloat16).eval().requires_grad_(False)
+            self._offload(offload_blocks)
             self.vae = load_vae(0, args=SimpleNamespace(vae_type=vae_type, ckpt_dir=str(WEIGHTS),
                                                         lightvae_pruning_rate=None))
+            # the full Wan2.2 encoder (1.4 GB) only encodes the start image: keep it on CPU
+            self.vae.encoder_model.to("cpu")
         finally:
             os.chdir(cwd)
         self.h, self.w, self.steps = height, width, steps
+        self.vae_segment = 2  # upstream default 4; smaller decode segments for 16 GB
         self.vae_stride, self.patch = cfg.vae_stride, cfg.patch_size
         self._prompt_cache: dict = {}
+
+    def _offload(self, n):
+        """Keep the weights of the last n DiT blocks in pinned CPU memory and
+        stream each block to the GPU just before it runs (exact; ~0.22 GB per
+        block over PCIe). Upstream's fp32-autocast attention with fp64 RoPE needs
+        ~6 GB of activations once the 5 memory latents join the window."""
+        if n <= 0:
+            return
+        self.offloaded = []
+        for blk in self.model.blocks[-n:]:
+            ts = [t for t in list(blk.parameters()) + list(blk.buffers())]
+            cpu = [t.data.to("cpu").pin_memory() for t in ts]
+            for t, c in zip(ts, cpu):
+                t.data = c
+            def pre(mod, args, kwargs, ts=ts, cpu=cpu):
+                for t, c in zip(ts, cpu):
+                    t.data = c.to(self.device, non_blocking=True)
+            def post(mod, args, kwargs, out, ts=ts, cpu=cpu):
+                for t, c in zip(ts, cpu):
+                    t.data = c
+            blk.register_forward_pre_hook(pre, with_kwargs=True)
+            blk.register_forward_hook(post, with_kwargs=True)
+            self.offloaded.append(blk)
+        torch.cuda.empty_cache()
 
     @torch.no_grad()
     def encode_prompt(self, text):
@@ -114,7 +181,9 @@ class MG3:
         lat_w = round(np.sqrt(max_area / ar) // self.vae_stride[2] // self.patch[2] * self.patch[2])
         th, tw = lat_h * self.vae_stride[1], lat_w * self.vae_stride[2]
         base_K = get_intrinsics(th, tw)
+        self.vae.encoder_model.to(self.device)
         img_cond = self.vae.encode([img[0]])[0][None].to(self.device, self.dtype).contiguous()
+        self.vae.encoder_model.to("cpu"); torch.cuda.empty_cache()
 
         clip_frame, first_clip_frame, past_frame = 56, 57, 16
         max_lat_f = (first_clip_frame - 1) // self.vae_stride[0] + 1
@@ -174,8 +243,10 @@ class MG3:
                 lat = torch.cat([img_cond, lat[:, :, img_cond.shape[2]:]], 2)
             img_cond = lat[:, :, -4:]
             den = lat if first else lat[:, :, -10:]
+            del pred, conds, plucker
+            torch.cuda.empty_cache()  # DiT activations are fragmented; free before the VAE
             video, vae_cache = self.vae.stream_decode(den.to(dtype=self.vae.dtype), vae_cache, first_chunk=first,
-                                                      segment_size=4, profiler={}, compile_decoder=False)
+                                                      segment_size=self.vae_segment, profiler={}, compile_decoder=False)
             videos.append(video.cpu())
             latents_hist.append(den)
         v = torch.cat(videos, 2)[0]

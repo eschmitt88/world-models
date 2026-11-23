@@ -1,1 +1,15 @@
-{}
+{
+ "n_rollouts": 120,
+ "return_lpips_outback_T12": 0.09802824382980664,
+ "return_lpips_still_T12": 0.03387779975309968,
+ "return_lpips_outback_T24": 0.25342528397838276,
+ "return_lpips_still_T24": 0.08407724089920521,
+ "return_lpips_outback_T48": 0.5360583042105039,
+ "return_lpips_still_T48": 0.2112654410302639,
+ "return_lpips_outback_T96": 0.630170539021492,
+ "return_lpips_still_T96": 0.4072320933143298,
+ "return_lpips_outback_T192": 0.6440490235884985,
+ "return_lpips_still_T192": 0.5783694485823313,
+ "ref_unrelated_scenes_lpips": 0.7195882499217987,
+ "ref_seed_spread_lpips": 0.5516283512115479
+}
