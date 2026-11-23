@@ -5,6 +5,7 @@ discovered: 2026-11-23
 source: discover
 n_requested: 20
 n_returned: 20
+curated: 2026-11-23
 ---
 
 ## 1. Diffusion Forcing: Next-token Prediction Meets Full-Sequence Diffusion
@@ -166,3 +167,28 @@ n_returned: 20
 - summary: Commercial 3D world generation; a search found no technical report or paper.
 - reason: Recorded as checked; no primary paper to ingest.
 - verified: snippet
+
+## Curation
+
+1. Diffusion Forcing: ingested -> chen2024diffusion
+2. History-Guided Video Diffusion: ingested -> song2025history
+3. Self Forcing: ingested -> huang2025self
+4. CausVid: ingested -> yin2024from
+5. Genie: ingested -> bruce2024genie
+6. V-JEPA 2: ingested -> assran2025vjepa
+7. Stable Virtual Camera: ingested -> zhou2025stable
+8. CAT3D: declined, SEVA already covers open camera-conditioned NVS and CAT3D has no public weights; revisit if an explicit-3D baseline is needed
+9. Atlas blog: ingested -> worldlabs-ai-atlas (fetch-tool summary only, no technical report exists)
+10. GameNGen: declined for now, weights not public and the idea is covered by Oasis and DIAMOND; revisit for the noise-augmentation drift fix
+11. DIAMOND: declined for now, Atari RL world model that overlaps `../ai-robotics`; code is MIT and runnable, so a candidate for the experiments side
+12. MineWorld: ingested -> guo2025mineworld (checkpoints withdrawn)
+13. Matrix-Game 1: declined, superseded by 2.0; its README requires at least 80 GB of VRAM
+14. Matrix-Game 2.0: ingested -> zhang2025matrix (arXiv ID verified; was snippet-only)
+15. Cosmos platform: declined for now, large platform paper; deferred for headroom (verdict slow, batch cap), a priority for the next sweep
+16. Oasis: ingested -> oasis-model-github-io-oasis (the open-oasis GitHub repo now returns 404; weights remain on Hugging Face)
+17. Hunyuan-GameCraft: declined for now, weights status unchecked; deferred for headroom
+18. LingBot-World: declined for now, deferred for headroom; strong 2026 open-weights candidate
+19. minWM: declined for now, deferred for headroom; directly relevant to bidirectional-to-causal conversion
+20. Marble: declined, World Labs has no technical report or paper to ingest (checked by search)
+
+Not in the original list but noticed while reading the Matrix-Game README: Matrix-Game 3.0 (5B, Apache-2.0, March 2026) and 4.0 (October 2026). Re-run discover for them.

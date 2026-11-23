@@ -28,3 +28,4 @@ has the exact time.
 2026-11-23 ingest raw/papers/guo2025mineworld.pdf
 2026-11-23 ingest raw/web/oasis-model-github-io-oasis.md
 2026-11-23 ingest raw/web/worldlabs-ai-atlas.md
+2026-11-23 curate 2026-11-23-autoregressive-interactive-world-models.md ingested=11 declined=9 dup=0
