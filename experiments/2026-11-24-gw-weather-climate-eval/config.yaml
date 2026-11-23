@@ -1,0 +1,8 @@
+# Weather / climate / calibration / contraction evaluation of the gridworld DF and TF models (ADR 0002).
+seed: 42
+checkpoints: {df: ../2026-11-23-gw-drift-df-vs-tf/results/df/ckpt.pt, tf: ../2026-11-23-gw-drift-df-vs-tf/results/tf/ckpt.pt, tf_snapshots: ../2026-11-23-gw-drift-df-vs-tf/results/tf/snapshots/}
+ensemble: {contexts: 32, members: 8, horizon: 256, sampler_steps: 10, actions: walk}
+arms: [{model: df, ctx_noise: 0.0}, {model: df, ctx_noise: best_from_long_eval}, {model: tf, ctx_noise: 0.0}, {model: df, ctx_noise: 0.0, snap_every: 8}, {model: tf, ctx_noise: 0.0, snap_every: 8}]
+climate_stats: [tile_occupancy, pattern2x2_wall_floor_landmark, same_colour_floor_adjacency, landmark_density]
+survival: {offman_threshold: 0.3, uniform_frame: 0.95}
+contraction: {clips: 256, eps: [0.05, 0.1, 0.2], told_noise: [true_level, clean], on_manifold: [shift_one_tile, flip_one_tile]}

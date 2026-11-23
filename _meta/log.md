@@ -35,3 +35,4 @@ has the exact time.
 2026-11-23 decision 0001 proposed: own 2D gridworld + pixel causal DiT (Fable consult x2, web sweep, throughput probe)
 2026-11-23 new-experiment gw-drift-df-vs-tf
 2026-11-23 new-experiment gw-memory-equal-compute
+2026-11-24 new-experiment gw-weather-climate-eval (ADR 0002)
