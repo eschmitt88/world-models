@@ -3,8 +3,8 @@ kind: concept
 name: "Bidirectional vs Causal Video Diffusion"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, huang2025self, song2025history]
-related_concepts: ["Diffusion Forcing", "Exposure Bias", "Novel View Prediction"]
+sources: [welch2026fei-fei-li-atlas, yin2024from, huang2025self, song2025history]
+related_concepts: ["Few-Step Distillation for Real-Time Rollout", "Diffusion Forcing", "Exposure Bias", "Novel View Prediction"]
 related_experiments: []
 tags: [video-diffusion, attention, interactivity, dit]
 ---
@@ -43,6 +43,9 @@ interactive world models.
   chunk-wise causal model at 17 FPS and 0.69 s latency on an H100, with
   VBench 84.31 vs 84.26 for the bidirectional Wan2.1 at 0.78 FPS
   ([[huang2025self]]). Its README asks for 24 GB.
+- CausVid is the original post-train route: a bidirectional teacher is distilled
+  into a 4-step causal student (asymmetric DMD), 1.3 s first-frame latency and
+  about 9.4 FPS streaming; the teacher needs 219 s for 128 frames ([[yin2024from]]).
 - Correction to "diffusion forcing = causal": DFoT keeps a non-causal
   transformer and recovers flexible conditioning purely from per-frame noise
   ([[song2025history]]). Causality and per-frame noise are separate choices.

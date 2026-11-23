@@ -12,3 +12,9 @@ has the exact time.
 2026-11-23 ingest raw/papers/chen2024diffusion.pdf
 2026-11-23 ingest raw/papers/song2025history.pdf
 2026-11-23 ingest raw/papers/huang2025self.pdf
+2026-11-23 fetch-paper 2412.07772 → raw/papers/yin2024from.pdf
+2026-11-23 fetch-paper 2402.15391 → raw/papers/bruce2024genie.pdf
+2026-11-23 fetch-paper 2506.09985 → raw/papers/assran2025vjepa.pdf
+2026-11-23 ingest raw/papers/yin2024from.pdf
+2026-11-23 ingest raw/papers/bruce2024genie.pdf
+2026-11-23 ingest raw/papers/assran2025vjepa.pdf

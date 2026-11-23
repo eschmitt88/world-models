@@ -3,7 +3,7 @@ kind: concept
 name: "Diffusion Forcing"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, chen2024diffusion, song2025history, huang2025self]
+sources: [welch2026fei-fei-li-atlas, yin2024from, chen2024diffusion, song2025history, huang2025self]
 related_concepts: ["Exposure Bias", "Bidirectional vs Causal Video Diffusion", "Novel View Prediction"]
 related_experiments: []
 tags: [autoregressive-diffusion, training-objective, noise-schedule, rollout-stability]
@@ -44,6 +44,10 @@ unverified).
   outputs, and that the noisy-context trick trades away temporal consistency.
 - Diffusion forcing and causality are separable: DFoT is bidirectional within
   its window ([[song2025history]]).
+
+- CausVid and the DF-based few-step models inherit the scheme, and Self Forcing
+  flags a training/inference mismatch in the CausVid DMD loss that comes from it
+  ([[yin2024from]], [[huang2025self]]).
 
 ## Connections
 

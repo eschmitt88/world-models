@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, chen2024diffusion, huang2025self]
+sources: [welch2026fei-fei-li-atlas, yin2024from, bruce2024genie, chen2024diffusion, huang2025self]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -34,6 +34,10 @@ world models.
   [[Diffusion Forcing]]).
 - Measured impact: CausVid shows visible error accumulation in long rollouts
   that Self Forcing reduces at the same 1.3B size ([[huang2025self]]).
+
+- Genie sidesteps continuous-latent drift by predicting discrete VQ tokens with
+  MaskGIT, but keeps only 16 frames of memory ([[bruce2024genie]]); whether
+  discreteness actually hides exposure bias is untested here.
 
 ## Connections
 
