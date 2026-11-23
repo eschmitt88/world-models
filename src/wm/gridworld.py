@@ -253,3 +253,37 @@ class World:
 
     def true_ids(self, map_idx, ty, tx):
         return self.maps[map_idx[:, None, None], ty, tx]
+
+
+
+def _inverse_action(a: torch.Tensor) -> torch.Tensor:
+    return torch.tensor([0, 2, 1, 4, 3], device=a.device)[a]
+
+
+def simulate(world: "World", mi, start_pos, acts):
+    """True poses from a start pose and an action sequence (frame t renders pos[:, t])."""
+    pos = start_pos; out = []
+    for t in range(acts.shape[1]):
+        pos, _ = world.step(mi, pos, acts[:, t]); out.append(pos)
+    return torch.stack(out, 1)
+
+
+def revisit_walks(world: "World", B: int, T: int, gen: torch.Generator, map_pool=None,
+                  out_min: int = 16, out_max: int = 96, p_turn: float = 0.08):
+    """Walk out for L ~ U[out_min, out_max] steps, retrace by inverting the actions
+    in reverse order, then carry on with the original walk's actions. This gives
+    revisits with a controlled gap (frame t and frame 2L - t share a pose when no
+    wall blocked the way out). Poses are always re-simulated, so a blocked step on the
+    way out makes the return approximate. Returns map_idx [B], actions [B,T],
+    pos [B,T,2], L [B]."""
+    mi, a, p = world.random_walks(B, T, gen, map_pool=map_pool, p_turn=p_turn, p_noop=0.05)
+    moved = torch.ones_like(a, dtype=torch.bool)
+    moved[:, 1:] = (p[:, 1:] != p[:, :-1]).any(-1)
+    a = torch.where(moved, a, torch.zeros_like(a))             # blocked steps become no-ops, so retracing is exact
+    L = torch.randint(out_min, out_max + 1, (B,), generator=gen, device="cpu").to(world.device)
+    t = torch.arange(T, device=world.device)[None]
+    mirror = (2 * L[:, None] + 1 - t).clamp(1, T - 1)          # action that led *to* frame 2L+1-t
+    in_back = (t > L[:, None]) & (t <= 2 * L[:, None])
+    acts = torch.where(in_back, _inverse_action(torch.gather(a, 1, mirror)), a)
+    acts[:, 0] = 0
+    return mi, acts, simulate(world, mi, p[:, 0], acts), L

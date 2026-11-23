@@ -1,0 +1,9 @@
+# Equal-compute memory comparison + imagination consistency on the gridworld (ADR 0001, experiments 2-3).
+seed: 42
+arms:
+  win: {window: 36, n_mem: 0, pose: true}      # 36 frames of plain context
+  mem: {window: 32, n_mem: 4, pose: true}      # 32 frames + 4 retrieved by (oracle) pose
+  df_ref: {source: ../2026-11-23-gw-drift-df-vs-tf/results/df, window: 32, pose: false}   # random-walk-trained reference
+model: {d: 384, depth: 8, heads: 6}
+train: {batch: 32, lr: 3.0e-4, hours_per_arm: 1.75, data: revisit walks, out L ~ U[24,80], window around the return}
+eval: {context_frames: 31, gaps: [8, 24, 48, 96], n: 24, sampler_steps: 10}

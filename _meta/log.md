@@ -34,3 +34,4 @@ has the exact time.
 2026-11-23 wrap first trials: MG2/MG3 memory + drift experiments done, report published
 2026-11-23 decision 0001 proposed: own 2D gridworld + pixel causal DiT (Fable consult x2, web sweep, throughput probe)
 2026-11-23 new-experiment gw-drift-df-vs-tf
+2026-11-23 new-experiment gw-memory-equal-compute

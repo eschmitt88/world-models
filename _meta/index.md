@@ -21,6 +21,7 @@ and `/new-experiment`.
 ## Active experiments
 
 - `experiments/2026-11-23-gw-drift-df-vs-tf/`: our own 2D world, diffusion forcing vs teacher forcing, drift against true state
+- `experiments/2026-11-23-gw-memory-equal-compute/`: pose retrieval vs plain context at equal tokens; imagined vs seen recall
 
 ## Finished experiments
 

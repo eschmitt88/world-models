@@ -1,0 +1,7 @@
+---
+title: "gw-memory-equal-compute"
+format: html
+---
+
+```{python}
+```

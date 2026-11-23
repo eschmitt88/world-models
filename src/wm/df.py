@@ -42,6 +42,8 @@ class Cfg:
     heads: int = 6
     window: int = 32
     mode: str = "df"
+    n_mem: int = 0        # retrieved memory frames prepended to the window (0 = none)
+    pose: bool = False    # add a relative-pose embedding to every frame's conditioning
 
 
 def patchify(x):   # [B,T,3,64,64] -> [B,T*64,192]
@@ -98,7 +100,11 @@ class WorldDiT(nn.Module):
         s.pos_s = nn.Parameter(torch.randn(1, 1, TOK, d) * 0.02)
         s.pos_t = nn.Parameter(torch.randn(1, cfg.window, 1, d) * 0.02)
         s.t_mlp = nn.Sequential(nn.Linear(d, d), nn.SiLU(), nn.Linear(d, d))
-        s.act = nn.Embedding(N_ACTIONS, d)
+        s.act = nn.Embedding(N_ACTIONS + (1 if cfg.n_mem else 0), d)   # extra id = "memory frame"
+        if cfg.n_mem:
+            s.pos_mem = nn.Parameter(torch.randn(1, 1, 1, d) * 0.02)
+        if cfg.pose:
+            s.pose_mlp = nn.Sequential(nn.Linear(24, d), nn.SiLU(), nn.Linear(d, d))
         s.blocks = nn.ModuleList([Block(d, cfg.heads) for _ in range(cfg.depth)])
         s.nf = nn.LayerNorm(d, elementwise_affine=False)
         s.ada_f = nn.Linear(d, 2 * d); nn.init.zeros_(s.ada_f.weight); nn.init.zeros_(s.ada_f.bias)
@@ -126,16 +132,25 @@ class WorldDiT(nn.Module):
                 s._masks[key] = create_block_mask(mm, None, None, 2 * T * TOK, 2 * T * TOK)
         return s._masks[key]
 
-    def forward(s, x, t, a, doubled=False):
+    def pose_feat(s, pose):
+        """pose [B,T,2] relative pixels -> Fourier features [B,T,24]."""
+        f = 2.0 ** torch.arange(6, device=pose.device) * math.pi / 64
+        z = pose.float()[..., None] * f                          # [B,T,2,6]
+        return torch.cat([z.sin(), z.cos()], -1).flatten(2)
+
+    def forward(s, x, t, a, doubled=False, pose=None, n_mem=0):
         """x [B,T,3,64,64] noisy frames, t [B,T] noise levels, a [B,T] actions -> v [B,T,3,64,64].
         doubled: x/t/a are already [B,2T,...] laid out clean|noisy (TF training)."""
         B, T = x.shape[:2]
         Tw = T // 2 if doubled else T
         h = s.inp(patchify(x)).view(B, T, TOK, -1)
-        tpos = s.pos_t[:, :Tw]
+        tpos = s.pos_t[:, :Tw - n_mem]
+        if n_mem: tpos = torch.cat([s.pos_mem.expand(1, n_mem, 1, -1), tpos], 1)
         if doubled: tpos = tpos.repeat(1, 2, 1, 1)
         h = (h + s.pos_s + tpos).view(B, T * TOK, -1)
         c = s.t_mlp(temb(t, s.cfg.d)) + s.act(a)                 # [B,T,d], per frame
+        if pose is not None and s.cfg.pose:
+            c = c + s.pose_mlp(s.pose_feat(pose))
         m = s.mask(Tw, doubled)
         for blk in s.blocks:
             h = blk(h, c, m)
@@ -183,6 +198,51 @@ def rollout(model, ctx, actions, steps=10, ctx_noise=0.0, gen=None):
         for k in range(steps):
             t = ts[k].expand(B, 1)
             v = model(torch.cat([cf, x[:, None]], 1), torch.cat([tc, t], 1), a)[:, -1]
+            x = x + (ts[k + 1] - ts[k]) * v
+        frames.append(x.clamp(-1, 1))
+    return torch.stack(frames, 1)
+
+
+def retrieve(hist_pos, win_pos, n_mem, valid):
+    """Pick n_mem history frames closest (L-inf, px) to any window pose.
+    hist_pos [B,H,2], win_pos [B,W,2], valid [B,H] bool -> indices [B,n_mem]."""
+    d = (hist_pos[:, :, None] - win_pos[:, None]).abs().amax(-1).amin(-1).float()   # [B,H]
+    d = d.masked_fill(~valid, 1e9)
+    return d.topk(n_mem, largest=False).indices
+
+
+@torch.no_grad()
+def rollout_mem(model, ctx, ctx_pos, actions, poses, steps=10, gen=None):
+    """Like `rollout`, for a model with n_mem memory slots and pose conditioning.
+    ctx [B,K,...] real frames, ctx_pos [B,K,2]; actions [B,K+N]; poses [B,K+N,2]
+    (the pose each frame is rendered at; the oracle poses here). Memory frames are
+    retrieved by pose from everything older than the window (real or generated)."""
+    W, M = model.cfg.window, model.cfg.n_mem
+    B, K = ctx.shape[:2]
+    N = actions.shape[1] - K
+    frames = [ctx[:, i] for i in range(K)]
+    ts = torch.linspace(1, 0, steps + 1, device=ctx.device)
+    mem_act = torch.full((B, M), N_ACTIONS, dtype=torch.long, device=ctx.device)
+    for n in range(N):
+        i = K + n
+        c0 = max(0, i - (W - 1))
+        cf = torch.stack(frames[c0:i], 1)
+        a = actions[:, c0:i + 1]; ps = poses[:, c0:i + 1]
+        if M and c0 >= M:
+            idx = retrieve(poses[:, :c0], ps, M, torch.ones(B, c0, dtype=torch.bool, device=ctx.device))
+            hist = torch.stack(frames[:c0], 1)
+            mf = hist[torch.arange(B, device=ctx.device)[:, None], idx]
+            mp = poses[:, :c0][torch.arange(B, device=ctx.device)[:, None], idx]
+        else:   # not enough history yet: repeat the oldest context frame as memory
+            mf = cf[:, :1].expand(B, M, *cf.shape[2:]) if M else cf[:, :0]
+            mp = ps[:, :1].expand(B, M, 2) if M else ps[:, :0]
+        ref = ps[:, :1]
+        x = torch.randn((B, 3, VIEW, VIEW), device=ctx.device, generator=gen)
+        tc = torch.zeros(B, M + cf.shape[1], device=ctx.device)
+        for k in range(steps):
+            tt = torch.cat([tc, ts[k].expand(B, 1)], 1)
+            inp = torch.cat([mf, cf, x[:, None]], 1)
+            v = model(inp, tt, torch.cat([mem_act, a], 1), pose=torch.cat([mp, ps], 1) - ref, n_mem=M)[:, -1]
             x = x + (ts[k + 1] - ts[k]) * v
         frames.append(x.clamp(-1, 1))
     return torch.stack(frames, 1)
