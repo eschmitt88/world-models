@@ -95,6 +95,7 @@ def main():
     ap.add_argument("--d", type=int, default=384); ap.add_argument("--depth", type=int, default=8); ap.add_argument("--heads", type=int, default=6)
     ap.add_argument("--window", type=int, default=32)
     ap.add_argument("--batch", type=int, default=32)
+    ap.add_argument("--accum", type=int, default=1, help="gradient-accumulation micro-batches (effective batch = batch)")
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--n_maps", type=int, default=2000)
     ap.add_argument("--shading", type=float, default=0.25)
@@ -142,13 +143,18 @@ def main():
                 torch.save(dict(ema=ema.state_dict(), step=step, cfg=vars(cfg)), out / "snapshots" / f"ema_{step:07d}.pt")
         if done:
             break
-        mi, a, p = world.random_walks(args.batch, T, g, map_pool=train_pool)
-        x0 = world.render(mi.repeat_interleave(T), p.reshape(-1, 2)).view(args.batch, T, 3, VIEW, VIEW)
         lr = args.lr * min(1.0, (step + 1) / 1000)
         for pg in opt.param_groups: pg["lr"] = lr
-        with torch.autocast("cuda", torch.bfloat16):
-            loss = loss_fn(model, x0, a)
-        loss.backward()
+        mb = args.batch // args.accum
+        loss_acc = 0.0
+        for _ in range(args.accum):
+            mi, a, p = world.random_walks(mb, T, g, map_pool=train_pool)
+            x0 = world.render(mi.repeat_interleave(T), p.reshape(-1, 2)).view(mb, T, 3, VIEW, VIEW)
+            with torch.autocast("cuda", torch.bfloat16):
+                loss = loss_fn(model, x0, a) / args.accum
+            loss.backward()
+            loss_acc += loss.item()
+        loss = torch.tensor(loss_acc)
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step(); opt.zero_grad(set_to_none=True)
         with torch.no_grad():
