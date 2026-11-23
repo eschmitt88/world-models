@@ -8,6 +8,9 @@ generated frame back to tiles, and record per frame:
   offman    share of cells matching no tile (nearest-atlas distance > real-frame p99.9)
   uniform   share of frames that collapsed to (near) a single tile class
   det_frac  share of cells that are determined at all
+  acc_aligned  acc_det re-scored at the pose the model actually drew (phase-correlation
+               shift vs the true frame), so position drift and world drift separate
+  odo_err_px   that shift's L-inf size in pixels
 
 Action scripts (true poses come from the simulator applying the actions):
   still  no-op throughout: every cell is determined, so this is pure drift
@@ -25,7 +28,7 @@ import torch
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parents[1] / "src"))
-from wm.gridworld import World, Knobs, VIEW  # noqa: E402
+from wm.gridworld import World, Knobs, VIEW, frame_shift  # noqa: E402
 from wm.df import WorldDiT, Cfg, rollout  # noqa: E402
 from wm.train_df import seen_mask, calibrate_threshold  # noqa: E402
 
@@ -81,7 +84,7 @@ for arm in args.arms:
             gg = torch.Generator(device="cuda").manual_seed(7)
             with torch.autocast("cuda", torch.bfloat16):
                 out = rollout(model, real, a, steps=args.steps, ctx_noise=cn, gen=gg)
-            acc, off, uni, det = [], [], [], []
+            acc, off, uni, det, acc_al, odo = [], [], [], [], [], []
             for k in range(H):
                 f = out[:, K + k].float()
                 POS = p[:, K + k]
@@ -95,10 +98,17 @@ for arm in args.arms:
                 flat = pred.flatten(1); mode = torch.mode(flat, 1).values
                 uni.append(((flat == mode[:, None]).float().mean(1) >= 0.95).float().mean().item())
                 det.append(dm.float().mean().item())
+                # position drift vs world drift: re-score at the pose the model actually drew
+                sh = frame_shift(f, world.render(mi, POS))
+                pred2, ty2, tx2, _ = world.decode(f, POS - sh)
+                true2 = world.true_ids(mi, ty2, tx2)
+                dm2 = seen[torch.arange(args.n, device="cuda")[:, None, None], ty2, tx2]; dm2[:, 3, 3] = False
+                acc_al.append(((pred2 == true2) & dm2).sum().item() / max(1, dm2.sum().item()))
+                odo.append(sh.abs().amax(-1).float().mean().item())
             key = f"{arm}|{script}|{cn}"
-            results[key] = dict(acc=acc, offman=off, uniform=uni, det=det)
+            results[key] = dict(acc=acc, offman=off, uniform=uni, det=det, acc_aligned=acc_al, odo_err_px=odo)
             q = lambda x, a_, b_: float(np.mean(x[a_:b_]))
-            print(f"{key}: acc 1-16 {q(acc,0,16):.3f} 64-96 {q(acc,64,96):.3f} 224-256 {q(acc,224,256):.3f} {H-32}-{H} {q(acc,H-32,H):.3f} | off(last) {q(off,H-32,H):.3f} uniform(last) {q(uni,H-32,H):.2f}", flush=True)
+            print(f"{key}: acc 1-16 {q(acc,0,16):.3f} 64-96 {q(acc,64,96):.3f} 224-256 {q(acc,224,256):.3f} {H-32}-{H} {q(acc,H-32,H):.3f} | aligned(last) {q(acc_al,H-32,H):.3f} odo(last) {q(odo,H-32,H):.1f}px | off(last) {q(off,H-32,H):.3f} uniform(last) {q(uni,H-32,H):.2f}", flush=True)
             if cn in (0.0, 0.1) and script in ("still", "pace"):
                 import imageio.v2 as iio
                 m6 = min(6, args.n)

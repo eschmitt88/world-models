@@ -31,11 +31,13 @@ import torch
 import torch.nn.functional as F
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from wm.gridworld import World, Knobs, VIEW, revisit_walks, N_ACTIONS  # noqa: E402
+from wm.gridworld import World, Knobs, VIEW, revisit_walks, N_ACTIONS, frame_shift  # noqa: E402
 from wm.df import WorldDiT, Cfg, rollout, rollout_mem, retrieve  # noqa: E402
 
 LTOT = 176
 M = 4
+# eval scores every rollout twice: raw (at the true pose) and aligned (re-registered to the
+# true frame by phase correlation, so position drift does not count as forgetting)
 
 
 def batch(world, arm, B, gen, pool):
@@ -132,33 +134,37 @@ def evaluate(dirs, gaps, n=24, steps=10, seed=99):
                 else:
                     out = rollout(model, real, a, steps=steps, gen=gg)
             out = out.float()
-            S = world.S
-            first = torch.full((n, S, S), -1, dtype=torch.long, device="cuda")   # tile id at first sight
-            src = torch.zeros((n, S, S), dtype=torch.long, device="cuda")        # 1 = real, 2 = imagined
-            first_t = torch.zeros((n, S, S), dtype=torch.long, device="cuda")
-            stats = {"real": [], "imag": []}
-            bi = torch.arange(n, device="cuda")[:, None, None]
-            for t in range(T):
-                f = real[:, t] if t < K else out[:, t]
-                pred, ty, tx, dist = world.decode(f, p[:, t])
-                true = world.true_ids(mi, ty, tx)
-                cells = torch.ones_like(pred, dtype=torch.bool); cells[:, 3, 3] = False
-                seenb = first[bi, ty, tx] >= 0
-                if t >= K and t > Lout:            # on the way back: score revisited cells
-                    gap = t - first_t[bi, ty, tx]
-                    r = seenb & cells & (src[bi, ty, tx] == 1)
-                    im = seenb & cells & (src[bi, ty, tx] == 2)
-                    stats["real"].append(((pred == true) & r).sum().item() / max(1, r.sum().item()))
-                    stats["imag"].append(((pred == first[bi, ty, tx]) & im).sum().item() / max(1, im.sum().item()))
-                newc = (~seenb) & cells
-                first[bi.expand_as(ty)[newc], ty[newc], tx[newc]] = (true if t < K else pred)[newc]
-                src[bi.expand_as(ty)[newc], ty[newc], tx[newc]] = 1 if t < K else 2
-                first_t[bi.expand_as(ty)[newc], ty[newc], tx[newc]] = t
-            # the last 16 frames revisit the real context; earlier return frames revisit imagined ground
-            r_last = float(np.mean(stats["real"][-16:]))
-            i_mid = float(np.mean([x for x in stats["imag"][:max(1, len(stats["imag"]) - 16)]]))
-            res[f"{name}|G{G}"] = dict(real_acc_end=r_last, imag_cons=i_mid, real_curve=stats["real"], imag_curve=stats["imag"])
-            print(f"{name} G={G}: real-context recall at return {r_last:.3f} | imagined self-consistency {i_mid:.3f}", flush=True)
+            for ALIGN_ in (False, True):
+                S = world.S
+                first = torch.full((n, S, S), -1, dtype=torch.long, device="cuda")   # tile id at first sight
+                src = torch.zeros((n, S, S), dtype=torch.long, device="cuda")        # 1 = real, 2 = imagined
+                first_t = torch.zeros((n, S, S), dtype=torch.long, device="cuda")
+                stats = {"real": [], "imag": []}
+                bi = torch.arange(n, device="cuda")[:, None, None]
+                for t in range(T):
+                    f = real[:, t] if t < K else out[:, t]
+                    pt = p[:, t]
+                    if t >= K and ALIGN_:   # score at the pose the model actually drew
+                        pt = pt - frame_shift(f, world.render(mi, p[:, t]))
+                    pred, ty, tx, dist = world.decode(f, pt)
+                    true = world.true_ids(mi, ty, tx)
+                    cells = torch.ones_like(pred, dtype=torch.bool); cells[:, 3, 3] = False
+                    seenb = first[bi, ty, tx] >= 0
+                    if t >= K and t > Lout:            # on the way back: score revisited cells
+                        gap = t - first_t[bi, ty, tx]
+                        r = seenb & cells & (src[bi, ty, tx] == 1)
+                        im = seenb & cells & (src[bi, ty, tx] == 2)
+                        stats["real"].append(((pred == true) & r).sum().item() / max(1, r.sum().item()))
+                        stats["imag"].append(((pred == first[bi, ty, tx]) & im).sum().item() / max(1, im.sum().item()))
+                    newc = (~seenb) & cells
+                    first[bi.expand_as(ty)[newc], ty[newc], tx[newc]] = (true if t < K else pred)[newc]
+                    src[bi.expand_as(ty)[newc], ty[newc], tx[newc]] = 1 if t < K else 2
+                    first_t[bi.expand_as(ty)[newc], ty[newc], tx[newc]] = t
+                # the last 16 frames revisit the real context; earlier return frames revisit imagined ground
+                r_last = float(np.mean(stats["real"][-16:]))
+                i_mid = float(np.mean([x for x in stats["imag"][:max(1, len(stats["imag"]) - 16)]]))
+                res[f"{name}|G{G}|{'aligned' if ALIGN_ else 'raw'}"] = dict(real_acc_end=r_last, imag_cons=i_mid, real_curve=stats["real"], imag_curve=stats["imag"])
+                print(f"{name} G={G} {'aligned' if ALIGN_ else 'raw'}: real-context recall at return {r_last:.3f} | imagined self-consistency {i_mid:.3f}", flush=True)
     return res
 
 

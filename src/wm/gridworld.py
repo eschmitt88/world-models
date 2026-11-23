@@ -287,3 +287,22 @@ def revisit_walks(world: "World", B: int, T: int, gen: torch.Generator, map_pool
     acts = torch.where(in_back, _inverse_action(torch.gather(a, 1, mirror)), a)
     acts[:, 0] = 0
     return mi, acts, simulate(world, mi, p[:, 0], acts), L
+
+
+def frame_shift(gen: torch.Tensor, ref: torch.Tensor, max_shift: int = 24):
+    """Integer translation (dy, dx) such that gen(y, x) ~ ref(y - dy, x - dx),
+    via phase correlation on grey frames. gen, ref [N,3,64,64] in [-1,1].
+    A frame rendered at true pose p but drawn as if from pose p - s has shift s,
+    so `pos - shift` is the pose the model actually drew."""
+    g = gen.float().mean(1); r = ref.float().mean(1)
+    g = g - g.mean((-2, -1), keepdim=True); r = r - r.mean((-2, -1), keepdim=True)
+    Fg, Fr = torch.fft.rfft2(g), torch.fft.rfft2(r)
+    R = Fg * Fr.conj(); R = R / (R.abs() + 1e-6)
+    c = torch.fft.irfft2(R, s=g.shape[-2:])                   # [N,64,64]
+    H, W = c.shape[-2:]
+    ys = torch.arange(H, device=c.device); ys = torch.where(ys > H // 2, ys - H, ys)
+    xs = torch.arange(W, device=c.device); xs = torch.where(xs > W // 2, xs - W, xs)
+    ok = (ys.abs()[:, None] <= max_shift) & (xs.abs()[None, :] <= max_shift)
+    c = c.masked_fill(~ok[None], -1e9)
+    idx = c.flatten(1).argmax(1)
+    return torch.stack([ys[idx // W], xs[idx % W]], 1)
