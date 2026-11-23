@@ -56,6 +56,14 @@ Mirror-pair curve (all T pooled), by gap: ≤16 frames 0.05–0.07, then 24 → 
 32 → 0.18, 64 → 0.37, 128 → 0.56, 256 → 0.61. The still-camera control rises
 more slowly over the same gaps: 0.04, 0.07, 0.18, 0.36, 0.53.
 
+Robustness: 6 of 120 videos contain near-black frames (mean pixel < 20).
+All are long out-and-back pans, and the village start (0013) at T=192 does
+this in all 3 seeds. On inspection it is mostly scene content: the pan swings
+into a building and MG2 walks the camera under a dark eave or porch. A few
+frames are fully black, matching the upstream README's black-screen warning.
+Without those six runs, return LPIPS is 0.58 (T=96) and 0.58 (T=192) instead of
+0.63 and 0.64, still at the seed-spread level. The conclusion does not change.
+
 Setup notes: the image condition is a 21-latent VAE-encoded prefix extended
 with its converged black-frame latent (mean abs difference 0.0085 vs latent
 std 1.26 against a longer encode; `src/wm/mg2.py`). Yaw 0.1/frame moves the
