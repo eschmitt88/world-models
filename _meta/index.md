@@ -21,6 +21,7 @@ and `/new-experiment`.
 ## Active experiments
 
 - `experiments/2026-11-23-mg2-memory-horizon/`: how long MG2 remembers a view
+- `experiments/2026-11-23-mg3-memory-ablation/`: MG3 retrieval memory on vs off, same protocol
 - `experiments/2026-11-23-mg2-context-noise-drift/`: context-noise knob vs long-rollout drift
 
 ## Open questions

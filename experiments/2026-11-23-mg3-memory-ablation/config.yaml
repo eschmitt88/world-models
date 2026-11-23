@@ -1,0 +1,9 @@
+# Out-and-back memory test for Matrix-Game 3.0, retrieval memory ON vs OFF (see README).
+seed: 42
+images: ["001", "004", "007", "010"]   # MG3 demo_images: cityscape, pixel village, low-poly forest, snowy field
+seeds: [0, 1]
+T: [24, 48, 96, 120]   # frames per pan leg; MG3 integrates yaw 0.1/frame as 1.5 deg/frame, so T=120 is a 180 deg turn
+lead: 8
+yaw: 0.1
+memory: [true, false]
+lpips_res: [352, 640]  # frames resized to MG2's resolution before the shared half-res LPIPS
