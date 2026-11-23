@@ -1,2 +1,12 @@
-# config for mg2-context-noise-drift
+# Long-rollout drift vs context_noise for Matrix-Game 2.0 (see README).
 seed: 42
+images: ["0013", "0005"]       # stylized village, real road photo
+seeds: [0, 1]
+context_noise: [0, 50, 100, 200, 400]   # timestep (of 1000) used when caching finished blocks
+latents: 600                   # -> 2397 frames, ~96 s at 25 fps (upstream demos: 150 latents)
+walk:                          # one fixed action track shared by every run (paired comparison)
+  forward: 1                   # W held throughout
+  yaw_amp: 0.06                # mouse yaw = yaw_amp * sin(2*pi*f/yaw_period)
+  yaw_period: 240
+  strafe_every: 400            # every N frames, strafe (A or D alternately) for strafe_len frames
+  strafe_len: 48

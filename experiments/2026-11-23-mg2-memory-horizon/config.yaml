@@ -1,2 +1,8 @@
-# config for mg2-memory-horizon
+# Out-and-back memory test for Matrix-Game 2.0 (see README).
 seed: 42
+images: ["0013", "0003", "0009", "0016"]   # village, real street photo, stylized, Minecraft
+seeds: [0, 1, 2]
+T: [12, 24, 48, 96, 192]    # frames per pan leg; scene leaves the frame after ~73 frames at yaw 0.1
+lead: 8                     # stationary frames before panning
+yaw: 0.1                    # mouse yaw per frame (upstream benchmark value; ~8.75 px/frame at 640 px)
+context_noise: 0            # upstream default
