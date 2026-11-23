@@ -10,7 +10,7 @@ max_disk_gb: 500
 
 # standard = propose and wait. max = act while the coordinator's verdict
 # permits and the ceilings above hold (~/claude-system/claude/rules/agency.md).
-agency: standard
+agency: max
 
 # Model roles: skill defaults, overridden by CLI flags. An alias floats to
 # the latest release; pin a concrete ID for reproducibility, or use
