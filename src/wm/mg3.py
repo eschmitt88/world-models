@@ -82,6 +82,12 @@ class MG3:
 
                 def _q(mod):
                     for name, ch in mod.named_children():
+                        if name == "action_model":
+                            # keep bf16: its MLPs concatenate the small mouse/keyboard
+                            # signal with large hidden states, and the int8 path's
+                            # per-token activation quantization rounds the action away
+                            # (first attempt: yaw input produced no camera rotation)
+                            continue
                         if isinstance(ch, torch.nn.Linear) and ch.in_features >= 256 and ch.out_features >= 256:
                             q = Int8Linear(ch.in_features, ch.out_features, bias=ch.bias is not None,
                                            device=ch.weight.device)
