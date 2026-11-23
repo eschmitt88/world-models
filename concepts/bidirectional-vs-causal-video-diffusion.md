@@ -3,7 +3,7 @@ kind: concept
 name: "Bidirectional vs Causal Video Diffusion"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, zhang2025matrix, yin2024from, huang2025self, song2025history]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, huang2025self, song2025history]
 related_concepts: ["Few-Step Distillation for Real-Time Rollout", "Diffusion Forcing", "Exposure Bias", "Novel View Prediction"]
 related_experiments: []
 tags: [video-diffusion, attention, interactivity, dit]
@@ -49,6 +49,9 @@ interactive world models.
 - Matrix-Game 2.0 applies the same recipe to a 1.3B Wan-architecture backbone with
   mouse and keyboard injection: 25 FPS on an H100, MIT code and weights, but 24 GB
   recommended ([[zhang2025matrix]]).
+- Two open autoregressive alternatives exist: Oasis (DiT with diffusion forcing, 500M) and
+  MineWorld (discrete-token transformer, 300M to 1.2B, checkpoints withdrawn)
+  ([[oasis-model-github-io-oasis]], [[guo2025mineworld]]).
 - Correction to "diffusion forcing = causal": DFoT keeps a non-causal
   transformer and recovers flexible conditioning purely from per-frame noise
   ([[song2025history]]). Causality and per-frame noise are separate choices.

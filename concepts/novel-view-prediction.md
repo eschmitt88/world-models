@@ -3,7 +3,7 @@ kind: concept
 name: "Novel View Prediction"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, zhou2025stable, song2025history]
+sources: [welch2026fei-fei-li-atlas, worldlabs-ai-atlas, zhou2025stable, song2025history]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion", "Real-to-Sim-to-Real"]
 related_experiments: []
 tags: [nvs, spatial-intelligence, implicit-3d, objective]
@@ -38,6 +38,11 @@ physics (see [[Real-to-Sim-to-Real]]) still have to recover explicit geometry.
 - DFoT shows camera-pose-conditioned RealEstate10K rollouts of 862 frames from one
   image with history guidance ([[song2025history]]), a first long-horizon
   consistency probe.
+
+- Correction to the video's framing: Atlas's own post says it emits explicit 3D (point clouds
+  and Gaussian splats) as well as novel views, takes depth and poses as inputs, and anchors
+  each image at a 3D position in a shared spatial context. So "implicit 3D" describes the
+  internal state, not the outputs ([[worldlabs-ai-atlas]], company claim).
 
 ## Connections
 

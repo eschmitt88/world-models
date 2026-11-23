@@ -22,3 +22,9 @@ has the exact time.
 2026-11-23 fetch-paper 2508.13009 → raw/papers/zhang2025matrix.pdf
 2026-11-23 ingest raw/papers/zhou2025stable.pdf
 2026-11-23 ingest raw/papers/zhang2025matrix.pdf
+2026-11-23 fetch-paper 2504.08388 → raw/papers/guo2025mineworld.pdf
+2026-11-23 fetch-paper https://oasis-model.github.io → raw/web/oasis-model-github-io-oasis.md
+2026-11-23 fetch-paper https://worldlabs.ai/blog/atlas → raw/web/worldlabs-ai-atlas.md
+2026-11-23 ingest raw/papers/guo2025mineworld.pdf
+2026-11-23 ingest raw/web/oasis-model-github-io-oasis.md
+2026-11-23 ingest raw/web/worldlabs-ai-atlas.md

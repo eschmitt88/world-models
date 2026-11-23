@@ -3,7 +3,7 @@ kind: concept
 name: "Real-to-Sim-to-Real"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, assran2025vjepa]
+sources: [welch2026fei-fei-li-atlas, worldlabs-ai-atlas, assran2025vjepa]
 related_concepts: ["Latent-Predictive World Models", "Novel View Prediction"]
 related_experiments: []
 tags: [robotics, simulation, reconstruction, sim-to-real]

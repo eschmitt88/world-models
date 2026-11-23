@@ -3,7 +3,7 @@ kind: concept
 name: "Diffusion Forcing"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, yin2024from, chen2024diffusion, song2025history, huang2025self]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, worldlabs-ai-atlas, yin2024from, chen2024diffusion, song2025history, huang2025self]
 related_concepts: ["Exposure Bias", "Bidirectional vs Causal Video Diffusion", "Novel View Prediction"]
 related_experiments: []
 tags: [autoregressive-diffusion, training-objective, noise-schedule, rollout-stability]
@@ -48,6 +48,13 @@ unverified).
 - CausVid and the DF-based few-step models inherit the scheme, and Self Forcing
   flags a training/inference mismatch in the CausVid DMD loss that comes from it
   ([[yin2024from]], [[huang2025self]]).
+
+- Oasis is the clearest deployed instance: a DiT trained with diffusion forcing, plus
+  "dynamic noising" at inference (noise injected in early passes, removed later) to limit
+  error accumulation ([[oasis-model-github-io-oasis]]; company blog, weights public).
+- The Atlas launch post names an autoregressive diffusion transformer but, per the
+  summary I could fetch, does not mention diffusion forcing or per-modality noise; the
+  "modality forcing" attribution rests on the video alone ([[worldlabs-ai-atlas]]).
 
 ## Connections
 
