@@ -99,16 +99,7 @@ The start image anchors only the first second.
 
 ## Diagnostics
 
-Fill in after the run. One line per field; leave `n/a` rather than
-blank. `next_candidates` must list ≥2 concrete one-sentence proposals.
-Every concrete claim below needs a **citation anchor** — a code
-reference like `train.py:42-58`, a metrics file path like
-`metrics.json:val_acc`, or a wikilink into `literature/`. Unanchored
-assertions are flagged by `/lint` (Kosmos, arXiv 2511.02824).
-
-Unless otherwise noted, metric numbers here reference `metrics.json`
-(validation split). Cite `final_metrics.json` only if this experiment
-is itself the final-scoring pass.
+Metric numbers reference `metrics.json` (no held-out split exists for these probes).
 
 - intended_effect_confirmed: yes — return LPIPS 0.10 (24-frame round trip) → 0.54 (96) → 0.64 (384), reaching the seed-spread level 0.55 (metrics.json:return_lpips_outback_T*, ref_seed_spread_lpips)
 - leakage_check: n/a — no holdout; this is a probe of a frozen public checkpoint, not a trained model

@@ -99,16 +99,7 @@ index. MG2 has nothing past ~1 s.
 
 ## Diagnostics
 
-Fill in after the run. One line per field; leave `n/a` rather than
-blank. `next_candidates` must list ≥2 concrete one-sentence proposals.
-Every concrete claim below needs a **citation anchor** — a code
-reference like `train.py:42-58`, a metrics file path like
-`metrics.json:val_acc`, or a wikilink into `literature/`. Unanchored
-assertions are flagged by `/lint` (Kosmos, arXiv 2511.02824).
-
-Unless otherwise noted, metric numbers here reference `metrics.json`
-(validation split). Cite `final_metrics.json` only if this experiment
-is itself the final-scoring pass.
+Metric numbers reference `metrics.json` (no held-out split exists for these probes).
 
 - intended_effect_confirmed: yes — place-recognition inliers at T=120: memory on median 92.5 (7/8 ≥30) vs off 5 (0/8), unrelated median 6 (metrics.json:geomatch_median_MG3_mem*_T120, geomatch_unrelated_*)
 - leakage_check: n/a — frozen public checkpoint probed with scripted actions; no training or holdout

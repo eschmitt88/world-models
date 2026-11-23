@@ -31,3 +31,4 @@ has the exact time.
 2026-11-23 curate 2026-11-23-autoregressive-interactive-world-models.md ingested=11 declined=9 dup=0
 2026-11-23 new-experiment mg3-memory-ablation
 2026-11-23 promote-moc interactive-world-models (5 concepts)
+2026-11-23 wrap first trials: MG2/MG3 memory + drift experiments done, report published

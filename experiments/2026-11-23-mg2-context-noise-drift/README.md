@@ -89,16 +89,7 @@ noisy-context conditioning trades away consistency.
 
 ## Diagnostics
 
-Fill in after the run. One line per field; leave `n/a` rather than
-blank. `next_candidates` must list ≥2 concrete one-sentence proposals.
-Every concrete claim below needs a **citation anchor** — a code
-reference like `train.py:42-58`, a metrics file path like
-`metrics.json:val_acc`, or a wikilink into `literature/`. Unanchored
-assertions are flagged by `/lint` (Kosmos, arXiv 2511.02824).
-
-Unless otherwise noted, metric numbers here reference `metrics.json`
-(validation split). Cite `final_metrics.json` only if this experiment
-is itself the final-scoring pass.
+Metric numbers reference `metrics.json` (no held-out split exists for these probes).
 
 - intended_effect_confirmed: partial — dark-frame share 0.53 (cn 0) → 0.08 (cn 200) → 0.39 (cn 400), but colourfulness late ratio 2.9× at cn 200 (metrics.json:cn*_dark_frac, cn200_colour_late_ratio)
 - leakage_check: n/a — frozen public checkpoint, no training or holdout
