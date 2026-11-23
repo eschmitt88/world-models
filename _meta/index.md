@@ -19,7 +19,8 @@ and `/new-experiment`.
 
 ## Active experiments
 
-(list of `experiments/YYYY-MM-DD-<slug>/` folders currently in flight)
+- `experiments/2026-11-23-mg2-memory-horizon/`: how long MG2 remembers a view
+- `experiments/2026-11-23-mg2-context-noise-drift/`: context-noise knob vs long-rollout drift
 
 ## Open questions
 

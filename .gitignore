@@ -32,3 +32,6 @@ _meta/token_log.ndjson
 *.tar
 *.tar.gz
 *.zip
+
+# Third-party code checkouts and their envs (not ours)
+/vendor/
