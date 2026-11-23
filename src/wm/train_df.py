@@ -137,6 +137,9 @@ def main():
             print(f"[eval {step}] onestep {r['onestep_acc']:.3f} roll8 {r['roll_acc_8']:.3f} roll32 {r['roll_acc_32']:.3f} roll96 {r['roll_acc_96']:.3f} off96 {r['offman_96']:.3f}", flush=True)
             torch.save(dict(model=model.state_dict(), ema=ema.state_dict(), opt=opt.state_dict(), step=step,
                             elapsed=elapsed, cfg=vars(cfg)), ck)
+            if step % 8000 == 0 and step > 0:   # EMA snapshots for checkpoint-level probes (contraction vs survival)
+                (out / "snapshots").mkdir(exist_ok=True)
+                torch.save(dict(ema=ema.state_dict(), step=step, cfg=vars(cfg)), out / "snapshots" / f"ema_{step:07d}.pt")
         if done:
             break
         mi, a, p = world.random_walks(args.batch, T, g, map_pool=train_pool)
