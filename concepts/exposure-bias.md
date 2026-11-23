@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas]
+sources: [welch2026fei-fei-li-atlas, chen2024diffusion, huang2025self]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -25,8 +25,21 @@ rollouts drift into blur or noise ([[welch2026fei-fei-li-atlas]]). Drift over
 rollout length is the main thing to measure when this project trials open
 world models.
 
+## What the primary papers add
+
+- The diffusion-forcing paper reports that teacher-forced and full-sequence
+  baselines diverge on Minecraft/DMLab rollouts while DF stays stable to about
+  1000 frames ([[chen2024diffusion]]). The video presents this as the fix;
+  [[huang2025self]] disputes that it fully resolves the mismatch (see
+  [[Diffusion Forcing]]).
+- Measured impact: CausVid shows visible error accumulation in long rollouts
+  that Self Forcing reduces at the same 1.3B size ([[huang2025self]]).
+
 ## Connections
 
 - [[Diffusion Forcing]]: the noise-augmented-context fix
-- Self Forcing / CausVid: train on the model's own rollouts (to ingest)
+- [[huang2025self]]: Self Forcing trains on the model's own rollouts with KV
+  caching; it states that Teacher Forcing and Diffusion Forcing both leave the
+  context off the inference distribution. CausVid is the earlier
+  DF-based version, which Self Forcing says matches the wrong distribution
 - Scheduled sampling: the older sequence-modeling fix

@@ -3,7 +3,7 @@ kind: concept
 name: "Bidirectional vs Causal Video Diffusion"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas]
+sources: [welch2026fei-fei-li-atlas, huang2025self, song2025history]
 related_concepts: ["Diffusion Forcing", "Exposure Bias", "Novel View Prediction"]
 related_experiments: []
 tags: [video-diffusion, attention, interactivity, dit]
@@ -36,3 +36,13 @@ interactive world models.
 - [[Diffusion Forcing]]: the training scheme that makes causal rollouts stable
 - [[Exposure Bias]]: the cost of naive causality
 - Wan 2.1 1.3B: an open bidirectional base that fits 16 GB
+
+## What the primary papers add
+
+- Self Forcing is the post-train route made concrete: Wan2.1-1.3B becomes a
+  chunk-wise causal model at 17 FPS and 0.69 s latency on an H100, with
+  VBench 84.31 vs 84.26 for the bidirectional Wan2.1 at 0.78 FPS
+  ([[huang2025self]]). Its README asks for 24 GB.
+- Correction to "diffusion forcing = causal": DFoT keeps a non-causal
+  transformer and recovers flexible conditioning purely from per-frame noise
+  ([[song2025history]]). Causality and per-frame noise are separate choices.

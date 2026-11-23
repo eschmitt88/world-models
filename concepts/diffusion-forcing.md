@@ -3,7 +3,7 @@ kind: concept
 name: "Diffusion Forcing"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas]
+sources: [welch2026fei-fei-li-atlas, chen2024diffusion, song2025history, huang2025self]
 related_concepts: ["Exposure Bias", "Bidirectional vs Causal Video Diffusion", "Novel View Prediction"]
 related_experiments: []
 tags: [autoregressive-diffusion, training-objective, noise-schedule, rollout-stability]
@@ -17,8 +17,11 @@ Training a causal sequence diffusion model with an **independent noise level
 per token or frame**, sampled separately and passed to the model as input. The
 two usual schemes are special cases: all-equal noise is full-sequence
 (bidirectional-style) diffusion, and clean-past/noisy-next is teacher forcing.
-At inference the per-frame noise schedule is a free control knob (Chen et al.,
-MIT 2024; primary paper not yet ingested).
+At inference the per-frame noise schedule is a free control knob (Chen et al., MIT 2024, [[chen2024diffusion]]). The original paper's
+video model is a small convolutional RNN on Minecraft and DMLab, and the
+authors list scaling as untested. "Noising as masking" does not require
+causal attention: [[song2025history]] applies it to a *non-causal* transformer
+(DFoT) and gets flexible-history conditioning plus 862-frame rollouts.
 
 ## Why it matters here
 
@@ -30,6 +33,17 @@ says it generalizes the idea to per-*modality* noise levels ("latent forcing"
 panoramas and interactive exploration, depending on which inputs are clean
 and which are noised ([[welch2026fei-fei-li-atlas]]; company claim,
 unverified).
+
+## What the primary papers add
+
+- Stabilised rollout comes from feeding the previous frame back at a *small*
+  noise level, not clean ([[chen2024diffusion]], Sec. 3.3). Context noise at
+  inference is the knob to sweep.
+- It is *not* a complete cure for [[Exposure Bias]]. [[huang2025self]] argues
+  DF still conditions on noised ground truth rather than the model's own
+  outputs, and that the noisy-context trick trades away temporal consistency.
+- Diffusion forcing and causality are separable: DFoT is bidirectional within
+  its window ([[song2025history]]).
 
 ## Connections
 
