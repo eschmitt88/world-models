@@ -12,11 +12,11 @@ and `/new-experiment`.
 
 (promote a cluster of ≥5 related concepts into `mocs/<theme>.md`)
 
-- *Candidate:* **autoregressive world-model architecture**: Diffusion Forcing,
-  Exposure Bias, Bidirectional vs Causal Video Diffusion, Few-Step Distillation
-  for Real-Time Rollout, Novel View Prediction, Latent Action Model,
-  Latent-Predictive World Models, Real-to-Sim-to-Real. Eight concepts, now
-  backed by primary papers (2026-11-23 sweep); ripe for `/promote-moc`.
+- [[mocs/interactive-world-models|Interactive World Models]]: causal vs
+  bidirectional, diffusion forcing, exposure bias, few-step distillation,
+  latent actions (5 concepts).
+- Not yet ripe: a **spatial / representation** cluster (Novel View Prediction,
+  Latent-Predictive World Models, Real-to-Sim-to-Real), 3 concepts.
 
 ## Active experiments
 
