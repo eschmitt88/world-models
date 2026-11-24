@@ -49,3 +49,4 @@ has the exact time.
 2026-11-24 fetch-paper 2512.12080 → raw/papers/po2025bagger.pdf
 2026-11-24 ingest raw/papers/po2025bagger.pdf
 2026-11-24 curate 2026-11-23-small-world-world-models.md ingested=6 declined=12 dup=2
+2026-11-24 fetch-paper 2503.18731 → raw/papers/pedersen2025thermalizer.pdf
