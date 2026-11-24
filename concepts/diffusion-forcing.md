@@ -3,7 +3,7 @@ kind: concept
 name: "Diffusion Forcing"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, worldlabs-ai-atlas, yin2024from, chen2024diffusion, song2025history, huang2025self, xiao2025worldmem, li2025smallworlds, zhao2026miniworld]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, worldlabs-ai-atlas, yin2024from, chen2024diffusion, song2025history, huang2025self, xiao2025worldmem, li2025smallworlds, zhao2026miniworld, po2025bagger]
 related_concepts: ["Exposure Bias", "Bidirectional vs Causal Video Diffusion", "Novel View Prediction"]
 related_experiments: []
 tags: [autoregressive-diffusion, training-objective, noise-schedule, rollout-stability]
@@ -69,3 +69,6 @@ unverified).
   0.5B and 1B are public. Its drift evidence is against a bidirectional
   sliding window only, with no teacher-forcing or schedule ablation
   ([[zhao2026miniworld]]).
+- BAgger starts from a DF model and adds aggregated reversed self-rollouts to
+  the training set, showing DF with or without context noise still drifts
+  ([[po2025bagger]]).

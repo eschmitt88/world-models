@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -61,3 +61,9 @@ world models.
   (geometry and fidelity fall first) and it lists self-forcing-style
   alignment as future work; no TF arm, so the DF-vs-TF effect is untested
   there ([[zhao2026miniworld]]).
+- BAgger fixes it without a teacher: fine-tune the DF model on time-reversed
+  copies of its own drifted rollouts (DAgger-style, standard flow-matching
+  loss). Three rounds at 1.3B cut aesthetic/imaging drift on 50 s videos from
+  5.1 / 7.3 (DF) to 3.3 / 3.6, but round 1 alone can be worse than the seed
+  model, and the reversal assumes the data is time-reversible
+  ([[po2025bagger]]; preprint, no code yet).
