@@ -55,3 +55,5 @@ has the exact time.
 2026-11-24 ingest raw/papers/lehmann2026can.pdf
 2026-11-24 fetch-paper 2411.11268 → raw/papers/wattmeyer2024ace2.pdf
 2026-11-24 ingest raw/papers/wattmeyer2024ace2.pdf
+2026-11-24 fetch-paper 2312.15796 → raw/papers/price2023gencast.pdf (40.9 MB, over the 40 MB limit; left uncommitted)
+2026-11-24 ingest raw/papers/price2023gencast.pdf
