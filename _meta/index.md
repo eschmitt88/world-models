@@ -15,7 +15,9 @@ and `/new-experiment`.
 - [[mocs/interactive-world-models|Interactive World Models]]: causal vs
   bidirectional, diffusion forcing, exposure bias, few-step distillation,
   latent actions (5 concepts).
-- Not yet ripe: a **weather-climate evaluation** cluster (Long-Rollout Evaluation, Conservation by Construction, Ensemble Calibration, Spectral Rollout Diagnostics), 4 concepts.
+- [[mocs/long-rollout-stability|Long-Rollout Stability]]: weather vs climate
+  evaluation, ensemble calibration, spectral diagnostics, conservation by
+  construction, distributional rollout training (5 concepts; ADR 0002's literature).
 - Not yet ripe: a **spatial / representation** cluster (Novel View Prediction,
   Latent-Predictive World Models, Real-to-Sim-to-Real, Spatial Memory), 4 concepts.
 

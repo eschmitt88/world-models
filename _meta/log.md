@@ -69,3 +69,4 @@ has the exact time.
 2026-11-24 ingest raw/papers/mei2025world.pdf
 2026-11-24 curate 2026-11-23-weather-rollout-crossover.md ingested=10 declined=20 dup=3
 2026-11-24 decision 0002 evidence update (curation: contraction prior weakened; novelty wording narrowed)
+2026-11-24 promote-moc long-rollout-stability (5 concepts)
