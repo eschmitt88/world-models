@@ -5,6 +5,7 @@ discovered: 2026-11-23
 source: discover
 n_requested: 20
 n_returned: 20
+curated: 2026-11-24
 ---
 
 ## 1. DIAMOND: Diffusion for World Modeling, Visual Details Matter in Atari
@@ -166,3 +167,29 @@ n_returned: 20
 - summary: JAX grid worlds with partial observability; paper reports tens of millions of steps/s over many devices, about 1M steps/s training throughput on one device; Apache-2.0.
 - reason: Partially observed, rule-configurable grid world for memory tests; code github.com/corl-team/xland-minigrid.
 - verified: page
+
+## Curation
+
+Curated 2026-11-24 under `agency: max`, verdict slow/low (GPU busy with the overnight gridworld run), so ingests ran two at a time. The selection follows the build path in ADR 0001/0002: what the gridworld DiT, the DF-vs-TF drift test, the memory arms and the climate evaluation lean on.
+
+1. DIAMOND: ingested → alonso2024diffusion (declined 2026-11-23 as RL-adjacent; it is now the single-GPU from-scratch reference for our own training)
+2. Delta-IRIS: declined — discrete-token Crafter world model aimed at RL sample efficiency (`../ai-robotics` territory); DIAMOND already covers the single-GPU reference role
+3. Genie: already in graph (bruce2024genie)
+4. Jafar: declined — reimplementation of an in-graph source; ADR 0001 builds a causal DiT, not a latent-action model; revisit if a latent-action arm is added
+5. GenieRedux: declined — same reason as Jafar; its one transferable finding (an RL exploration policy beats random data collection) is recorded here
+6. TinyWorlds: declined — educational repo; parameter count and compute are not documented in the README
+7. Diffusion Forcing: already in graph (chen2024diffusion)
+8. How Far is Video Generation from World Model (physical laws): declined — the OOD-generalisation question is not on the active drift/memory/climate track, and at 32–64 A100s it is no compute reference; revisit if generalisation over generator knobs becomes a study
+9. Long-Context State-Space Video World Models: declined — StateSpaceDiffuser covers SSM-state memory with a ground-truth maze revisit, which is closer to our setup; revisit if an SSM memory arm is added
+10. StateSpaceDiffuser: ingested → savov2025statespacediffuser (seeded `spatial-memory`; code not yet released, NeurIPS'25 per README)
+11. WorldMem: ingested → xiao2025worldmem
+12. Memory Maze: declined — an RL-agent memory benchmark; our memory probes use decoded state in our own gridworld
+13. BAgger: ingested → po2025bagger (no code yet; the reversal trick needs an action-inverse map in our gridworld)
+14. LeWorldModel: declined — no latent-predictive arm in ADR 0001/0002; the V-JEPA line is covered by assran2025vjepa; revisit for an implicit-vs-explicit-state comparison
+15. SmallWorlds: ingested → li2025smallworlds (seeded `long-rollout-evaluation`; benchmark named "SmallWorld" in the text)
+16. MiniWorld: ingested → zhao2026miniworld (correction: code and 0.5B/1B checkpoints are released, not "promised")
+17. Scaling Laws for Pre-training Agents and World Models: declined — no active question needs scaling evidence yet; revisit when gridworld models are scaled
+18. Craftax: declined — not used; the gridworld in `src/wm/gridworld.py` is custom
+19. Kinetix: declined — rigid-body physics generator, not on the build path
+20. XLand-MiniGrid: declined — ADR 0001 proposed layering on it, but the project built its own gridworld instead
+
