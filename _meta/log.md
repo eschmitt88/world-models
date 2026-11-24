@@ -37,3 +37,4 @@ has the exact time.
 2026-11-23 new-experiment gw-memory-equal-compute
 2026-11-24 new-experiment gw-weather-climate-eval (ADR 0002)
 2026-11-24 fetch-paper 2405.12399 → raw/papers/alonso2024diffusion.pdf
+2026-11-24 ingest raw/papers/alonso2024diffusion.pdf

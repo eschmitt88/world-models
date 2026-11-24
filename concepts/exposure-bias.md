@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -38,6 +38,11 @@ world models.
 - Matrix-Game 2.0 adopts Self Forcing's DMD-on-own-rollouts and says it
   mitigates the error accumulation of Teacher Forcing and Diffusion Forcing
   ([[zhang2025matrix]]; author claim).
+- DIAMOND shows the sampler matters too: with the same teacher-forced
+  training, an EDM-parametrised diffusion world model at 3 denoising steps
+  stays stable to t = 1000 on Atari, while DDPM at low step counts drifts out
+  of distribution. This is qualitative, on one game
+  ([[alonso2024diffusion]]; see [[Diffusion World Model]]).
 - Genie sidesteps continuous-latent drift by predicting discrete VQ tokens with
   MaskGIT, but keeps only 16 frames of memory ([[bruce2024genie]]); whether
   discreteness actually hides exposure bias is untested here.
