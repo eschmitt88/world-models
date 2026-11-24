@@ -67,3 +67,4 @@ has the exact time.
 2026-11-24 ingest raw/papers/wang2026worldprobe.pdf
 2026-11-24 fetch-paper 2512.05927 → raw/papers/mei2025world.pdf
 2026-11-24 ingest raw/papers/mei2025world.pdf
+2026-11-24 curate 2026-11-23-weather-rollout-crossover.md ingested=10 declined=20 dup=3

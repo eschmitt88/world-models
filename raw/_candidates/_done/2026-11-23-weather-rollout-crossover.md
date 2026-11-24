@@ -5,6 +5,7 @@ discovered: 2026-11-23
 source: discover
 n_requested: 20
 n_returned: 20
+curated: 2026-11-24
 ---
 
 All arXiv IDs were fetched and the title checked on 2026-11-23. "verified: abstract" means only the abstract page was read; numbers not on the abstract page are marked as such.
@@ -204,3 +205,47 @@ Diffusion Forcing samples an independent noise level per frame in training, so a
 8. Ensemble-mean feedback (ArchesWeatherGen long runs): average N sampled next frames before feeding back. Test: whether averaging causes blur-collapse (spectral decay) while reducing drift; a spread-skill trade-off.
 
 Most novel: 1, 2, 4 (no near neighbour in video). 3 and 8 have partial neighbours. Not novel by itself: unrolled or self-rollout training (Self Forcing, MP-PDE) and rolling windows (Rolling Forcing).
+
+## Curation
+
+Curated 2026-11-24 under `agency: max`, verdict slow/low (GPU busy), so ingests ran two at a time. Selection rule: ingest what ADR 0002's claim and its novelty boundary rest on (the climate, calibration, contraction and spectral parts and their nearest world-model neighbours). Decline weather-domain architecture that no planned arm uses; each such decline names the crossover that would reopen it.
+
+Numbered items:
+
+1. GraphCast: declined — unrolled multi-step fine-tuning; this file marks self-rollout training as not novel, and Self Forcing (huang2025self) is the video analogue already in the graph
+2. Pangu-Weather: declined — multi-stride aggregation (crossover 7) is not in ADR 0002's evaluation; reopen with that arm (Stormer first)
+3. FuXi: declined — per-lead-window cascade, same family as Pangu; weather-specific engineering
+4. Stormer: declined — the single-model randomized-horizon recipe to ingest first if crossover 7 is pursued
+5. Message Passing Neural PDE Solvers: declined — the pushforward trick is covered by Self Forcing and `exposure-bias`; this file rates it not novel
+6. PDE-Refiner: ingested → lippe2023pderefiner (seeded `spectral-rollout-diagnostics`; shows one-step spectra only, no per-rollout-step spectrum)
+7. Spherical Fourier Neural Operators: declined — spherical geometry has no gridworld analogue; architecture-level stability is not under study
+8. DYffusion: declined — a different family (noise level tied to physical time); no ADR 0002 arm uses it
+9. Spherical DYffusion: declined — ACE2 carries the decades-stable, climate-evaluated emulator evidence; the architecture is not under study
+10. Rolling Diffusion: declined — its tie to diffusion forcing is recorded in the relation note above, and zhao2026miniworld uses a monotone schedule; reopen with a rolling-schedule arm
+11. GenCast: ingested → price2023gencast (seeded `ensemble-calibration`)
+12. ArchesWeather & ArchesWeatherGen: declined — ensemble-mean feedback (crossover 8) is not in ADR 0002
+13. AIFS-CRPS: declined — a CRPS-trained generator (crossover 6) is not in the first evaluation; GenCast covers CRPS as an evaluation
+14. FGN: declined — the recipe to ingest first if crossover 6 is pursued
+15. FourCastNet 3: declined — `spectral-rollout-diagnostics` is now grounded by PDE-Refiner, lehmann2026can and FreqForcing; reopen if a spectral loss is tested
+16. ACE / ACE2: ingested → wattmeyer2024ace2 (ACE2 is the note, ACE recorded as prior work; seeded `conservation-by-construction`). Correction: ACE's "stable for 100 years" means no blow-up, and ACE2 reports seasonal-cycle and surface-pressure drift in those runs. The constraint is an in-model corrector, not a projection.
+17. NeuralGCM: declined — a known-dynamics hybrid arm is not in ADR 0002; reopen if one is added
+18. LUCIE: declined — ACE2 covers climate-statistics evaluation of an emulator
+19. Thermalizer: ingested → pedersen2025thermalizer. Correction: "10x vs 100x" is the v1 vs v2 abstract ("an order" / "two orders of magnitude"), not a lay summary. Thermalized runs were stopped rather than seen to fail, so the ratio is a lower bound (about 2–5x at 1e4 steps).
+20. Can AI Weather Models Predict Beyond Two Weeks?: ingested → lehmann2026can. Correction: 2-year rollouts (2920 six-hour steps), 10-year runs for 3 models only. Denoising is measured as noisy-vs-clean rollout error over days, not as a one-step gain. Related 2505.02506 and 2605.29976 were not ingested.
+
+Video / world-model side list:
+
+- Diffusion Forcing: already in graph (chen2024diffusion)
+- Self Forcing: already in graph (huang2025self)
+- Rolling Forcing: declined — video descendant of Rolling Diffusion; reopen with a rolling-schedule arm
+- FIFO-Diffusion: declined — training-free diagonal denoising; same reason
+- FreqForcing: ingested → li2026freqforcing (actual title "FreqForcing: Autoregressive Long Video Generation via Spectral Self-Anchoring"; text-to-video, not action-conditioned)
+- Fréchet Forcing: ingested → zhao2026frechet (actual title "Fréchet Forcing: Training Long-Horizon Streaming World Models from Short Clips"; DROID robot video and Sekai game-navigation video, not games only)
+- Multiplayer world model with RAE (2607.05352): declined — metrics were not read at discovery and the abstract claim is thin; WorldProbe and Fréchet Forcing fill the long-horizon-neighbour role
+- WorldProbe: ingested → wang2026worldprobe (actual title "WorldProbe: When Video World Models Fall Apart under Long-Horizon Spatial Exploration")
+- C3: ingested → mei2025world (actual title "World Models That Know When They Don't Know: Controllable Video Generation with Calibrated Uncertainty"). Correction: it uses no CRPS, spread-skill or rank histograms. It scores ECE and reliability on a per-latent-patch error probe and has no lead-time analysis.
+- S-QUBED: declined — C3 fills the nearest-calibration-neighbour role
+- CaliBench: declined — single-event outcome calibration (dice, roulette), not rollouts; ADR 0002 already records the distinction
+- EO-WM: declined — Earth-observation video DiT, off the action-conditioned track
+- Matrix-Game 2.0: already in graph (zhang2025matrix)
+
