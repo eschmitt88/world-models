@@ -3,7 +3,7 @@ kind: concept
 name: "Long-Rollout Evaluation"
 status: seedling
 added: "2026-11-24"
-sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast, lippe2023pderefiner]
+sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast, lippe2023pderefiner, zhao2026frechet]
 related_concepts: ["Exposure Bias", "Diffusion Forcing", "Spatial Memory"]
 related_experiments: ["2026-11-23-gw-drift-df-vs-tf", "2026-11-23-gw-weather-climate-eval"]
 tags: [evaluation, benchmark, rollout, horizon, state-space, weather-climate]
@@ -75,6 +75,14 @@ imports the split. Evidence so far:
   neglects low-amplitude components that limit rollout time, and that pushforward
   and exact invariance correction did not fix it (PDEs, correlation-time
   metric). See [[Spectral Rollout Diagnostics]]; no per-step spectrum is shown.
+- The nearest world-model neighbour: [[zhao2026frechet]] evaluates 4,000-frame
+  action-conditioned rollouts in six horizon bins with CLIP-FD and FVD against real
+  frames, plus brightness, flicker and action-following scores, and reports a
+  ground-truth frames floor at the same sample count. Everything is feature or
+  pixel level; no decoded-state statistics against a generator, no calibration
+  or ensembles. Its own limitations (population metrics mask local failures, a
+  coarse feature space misses fine periodic texture) mark where ADR 0002's
+  state-level statistics add information. See [[Distributional Rollout Training]].
 - Ensemble calibration, the third part of ADR 0002, is covered in
   [[Ensemble Calibration]]: [[price2023gencast]] defines CRPS, spread-skill and rank
   histograms for 50-member, 15-day forecasts. It does not reach long horizons.

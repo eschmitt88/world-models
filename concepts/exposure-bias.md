@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger, pedersen2025thermalizer, lippe2023pderefiner]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger, pedersen2025thermalizer, lippe2023pderefiner, zhao2026frechet]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -76,3 +76,9 @@ world models.
   gradient through the input) gave no gain on KS, since it cannot learn the
   low-amplitude content; its fix is a denoising refinement of each step instead
   ([[lippe2023pderefiner]]; PDEs, not video).
+- Fréchet Forcing fine-tunes MiniWorld-1B on its own free rollouts with Fréchet
+  distances to real-data feature statistics, with no teacher; rollouts stay stable
+  beyond 4,000 frames on DROID and Sekai against failure shortly after the 253-frame
+  pretraining horizon. Flow matching on self-generated history alone (FM-only)
+  barely helped, and DMD configurations tried gave no gain
+  ([[zhao2026frechet]]; preprint, one 1B model; see [[Distributional Rollout Training]]).
