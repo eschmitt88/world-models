@@ -73,3 +73,19 @@ Confound to check first: DF vs TF is valid only at matched one-step accuracy.
 
 If both of the first two kills land, drop the crossover and keep memory and
 imagination (`2026-11-23-gw-memory-equal-compute`) as the main line.
+
+## Evidence update — 2026-11-24 (curation of the crossover survey)
+
+These notes come from reading the full papers, past the abstracts. The decision is unchanged, but the wording of the novelty claim and one prior need to change.
+
+- **Contraction prior is weaker than assumed.** [[lehmann2026can]]: stable models are not uniformly denoisers. DLESyM is stable but amplifies noise, and Pangu is stable but denoises to unrealistic fields. Its "denoising" is noisy-vs-clean rollout error over days, not a one-step gain. A null result on part 4 is plausible, so the third kill criterion is a live risk, not a formality.
+- **Supports part 1/2's premise.** One-step error and seasonal-cycle error correlate only moderately across checkpoints ([[lehmann2026can]]). Lower validation MSE can come with earlier instability ([[pedersen2025thermalizer]], app. B.3). Climate error does not track training loss ([[wattmeyer2024ace2]]).
+- **Already in the literature; cite it rather than claim it:**
+  - long-horizon statistics binned by rollout step against real data ([[zhao2026frechet]], on DINOv2/latent features);
+  - degradation slopes over time across many world models ([[wang2026worldprobe]]);
+  - spectral band-energy drift in AR video ([[li2026freqforcing]], descriptive and not predictive);
+  - proper scoring rules for a world model and uncertainty–error correlation ([[mei2025world]], per-patch ECE with no lead-time axis).
+- **Still unclaimed by any source read:** the weather-vs-climate split in an action-conditioned model; spread-skill or rank-histogram calibration *against rollout step*; a rollout-free contraction predictor of survival; spectra as a *leading* failure predictor; scoring against a known generator. Word the claim as these.
+- **Spectral sign is unsettled.** PDE-Refiner points to neglected high frequencies, Lehmann to excess small-scale energy, and FreqForcing to low-band loss plus high-band jitter. A spectral predictor must be pre-registered two-sided (`concepts/spectral-rollout-diagnostics.md`).
+- **Snap-to-tile arm:** ACE2's exact conservation is an in-model corrector, which is a precedent. PDE-Refiner found that exact invariance correction did not lengthen rollouts, a mild prior against the arm.
+- **Calibration at 8 members:** the spread-skill correction factor is sqrt(9/8)≈1.06, and a rank histogram has only 9 bins ([[price2023gencast]]). The gridworld's unlimited true samples make the fair-CRPS estimator usable.
