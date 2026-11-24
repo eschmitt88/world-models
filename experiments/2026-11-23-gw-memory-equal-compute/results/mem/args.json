@@ -1,0 +1,23 @@
+{
+ "out": "/home/eschmitt/projects/research/world-models/experiments/2026-11-23-gw-memory-equal-compute/results/mem",
+ "arm": "mem",
+ "hours": 1.5,
+ "d": 384,
+ "depth": 8,
+ "heads": 6,
+ "batch": 32,
+ "lr": 0.0003,
+ "accum": 2,
+ "n_maps": 2000,
+ "shading": 0.25,
+ "seed": 0,
+ "eval": null,
+ "gaps": [
+  8,
+  24,
+  48,
+  96
+ ],
+ "n": 24,
+ "save": null
+}

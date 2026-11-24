@@ -1,0 +1,15 @@
+{
+ "out": "/home/eschmitt/projects/research/world-models/experiments/2026-11-23-gw-drift-df-vs-tf/results/df",
+ "mode": "df",
+ "hours": 3.5,
+ "d": 384,
+ "depth": 8,
+ "heads": 6,
+ "window": 32,
+ "batch": 32,
+ "lr": 0.0003,
+ "n_maps": 2000,
+ "shading": 0.25,
+ "eval_every": 2000,
+ "seed": 0
+}
