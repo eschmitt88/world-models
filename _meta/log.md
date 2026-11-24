@@ -52,3 +52,4 @@ has the exact time.
 2026-11-24 fetch-paper 2503.18731 → raw/papers/pedersen2025thermalizer.pdf
 2026-11-24 ingest raw/papers/pedersen2025thermalizer.pdf
 2026-11-24 fetch-paper 2605.30184 → raw/papers/lehmann2026can.pdf
+2026-11-24 ingest raw/papers/lehmann2026can.pdf

@@ -3,7 +3,7 @@ kind: concept
 name: "Long-Rollout Evaluation"
 status: seedling
 added: "2026-11-24"
-sources: [li2025smallworlds, pedersen2025thermalizer]
+sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can]
 related_concepts: ["Exposure Bias", "Diffusion Forcing", "Spatial Memory"]
 related_experiments: ["2026-11-23-gw-drift-df-vs-tf", "2026-11-23-gw-weather-climate-eval"]
 tags: [evaluation, benchmark, rollout, horizon, state-space, weather-climate]
@@ -47,8 +47,20 @@ imports the split. Evidence so far:
   1e4 steps against divergence at about 2e3 to 5e3; to 1e5 in one figure). The
   headline "10x" (v1 abstract) and "100x" (v2 abstract) are lengths tested
   against the divergence step, with the thermalized runs stopped, not failed.
-- Not yet covered here: measuring contraction of the emulator itself. The
-  weather benchmark that motivates it is not yet ingested.
+- Failure-mode metrics worth borrowing come from [[lehmann2026can]], a
+  two-year benchmark of nine AI weather models: blow-up time (log-linear growth
+  of the extremes), loss of seasonality (large-scale spectrum off climatology
+  for 45 days), and small-scale spectral ratio against reference. Across
+  training checkpoints, one-step error falls steadily while seasonal-cycle
+  error is only moderately correlated with it.
+- Noise response as a stability signature: stable models (Aurora, SFNO)
+  pull noisy inputs back to realistic states, and the noisy-minus-clean error
+  is V-shaped over days. This is measured by comparing full rollouts, not by a
+  one-step gain, and the evidence is loose: DLESyM is stable but amplifies
+  noise, and Pangu is stable but denoises to unrealistic fields
+  ([[lehmann2026can]]). A one-step contraction probe (ADR 0002) is still
+  untested as a predictor of survival. If it earns its own page, split it out
+  as a concept then.
 
 ## Connections
 
