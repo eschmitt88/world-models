@@ -2,9 +2,9 @@
 kind: experiment
 slug: "gw-memory-equal-compute"
 date: "2026-11-23"
-status: running     # running | done | abandoned
+status: done     # running | done | abandoned
 hypothesis: "At equal tokens, 4 pose-retrieved memory frames beat 36 frames of plain context on revisit accuracy once the gap exceeds the window, and the model keeps regions it imagined less well than regions it saw"
-result: ""
+result: "Harness check passed: 4 pose-retrieved memory frames recall the real context at 0.98-0.99 out to a 252-frame round trip vs 0.39 for 36 frames of plain context; the imagined-vs-seen gap was a metric artifact (first-sight drafts get revised); a matched-gap comparison is still needed"
 related_concepts: ["Exposure Bias", "Novel View Prediction"]
 related_literature: ["zhang2025matrix", "song2025history"]
 tags: [gridworld, from-scratch, memory, imagination, ground-truth]
@@ -49,38 +49,59 @@ Predictions:
 
 ## Result
 
-Fill in after the run. Point at `metrics.json` (validation split — this
-is the search signal and the file every other skill reads). A separate
-`final_metrics.json` holds held-out test-split numbers and is written
-only by the `dvc repro final_eval` pass at chain end. See
-`~/claude-system/claude/rules/evaluation.md`.
+Training: **mem** 13846 steps, **win** 13906 steps (1.5 h each, effective batch
+32 via 2-step accumulation after an OOM at batch 32; see `log.md`). The eval
+(`results/eval.json`, 24 held-out contexts, raw = scored at the true pose)
+runs a real context, then G more steps out, then retraces to the start.
+
+| model | real recall G=8 | 24 | 48 | 96 | mirror-imagined G=8 | 24 | 48 | 96 | first-sight G=8 | 96 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| mem (32 + 4 retrieved) | 0.99 | 0.98 | 0.99 | 0.98 | 0.90 | 0.81 | 0.85 | 0.79 | 0.26 | 0.54 |
+| win (36 plain) | 0.75 | 0.60 | 0.58 | 0.39 | 0.97 | 0.91 | 0.74 | 0.51 | 0.29 | 0.33 |
+| df ref (32, no pose) | 0.61 | 0.56 | 0.47 | 0.29 | 0.95 | 0.94 | 0.70 | 0.55 | 0.28 | 0.34 |
+
+- *real recall:* tile accuracy on the last 16 return frames, on cells the
+  real context showed.
+- *mirror-imagined:* agreement between a return frame and the outbound
+  frame at the same pose, on cells only ever seen in generated frames.
+- *first-sight:* agreement with a cell's first generated appearance (the
+  originally pre-registered metric).
 
 ## Interpretation
 
-What did you actually learn? What surprised you?
+1. **Prediction 2 (harness check) holds.** Four frames retrieved by pose
+   keep the real context at 0.98-0.99 recall out to a 252-frame round trip
+   (G=96). 36 frames of plain context fall from 0.75 to 0.39, and the
+   random-walk-trained df reference from 0.61 to 0.29. This is MG3's
+   retrieval result reproduced against ground truth, as expected from
+   StateSpaceDiffuser, WorldMem and Po et al.; it is not a novel finding.
+2. **Prediction 1 does not hold:** even at G=8, plain context recalls only
+   0.75, not near 1. At G=8 the round trip is 2(30+8)=76 frames, already
+   past the 36-frame window. The gap values were mislabelled as "small"
+   when this was pre-registered.
+3. **Prediction 3 (imagined recalled worse than seen) is not supported as
+   measured.** The pre-registered first-sight metric gave 0.26-0.55, but it
+   compares against a cell's *first* generated appearance, a sliver at the
+   view edge that the model then **revises** while the cell is still in view.
+   That is a finding in itself: first drafts at the frontier are provisional.
+   The fairer mirror metric gives 0.80-0.90 for the memory model's
+   imagined cells, against 0.87-0.95 on real cells. Without memory, imagined
+   cells score *higher* than real ones, but real cells are revisited last,
+   at longer gaps, so the comparison is confounded by gap. A matched-gap
+   comparison is still needed.
 
 ## Diagnostics
 
-Fill in after the run. One line per field; leave `n/a` rather than
-blank. `next_candidates` must list ≥2 concrete one-sentence proposals.
-Every concrete claim below needs a **citation anchor** — a code
-reference like `train.py:42-58`, a metrics file path like
-`metrics.json:val_acc`, or a wikilink into `literature/`. Unanchored
-assertions are flagged by `/lint` (Kosmos, arXiv 2511.02824).
+Metric numbers reference `metrics.json` (held-out maps throughout).
 
-Unless otherwise noted, metric numbers here reference `metrics.json`
-(validation split). Cite `final_metrics.json` only if this experiment
-is itself the final-scoring pass.
-
-- intended_effect_confirmed: <yes | no | partial> — <one-line evidence with anchor>
-- leakage_check: <method used> — <finding>
-- overfitting_signal: train=<x> val=<y> gap=<z> — <interpretation> (from metrics.json)
-- delta_from_prior: vs <related_prior_slug>, <metric_delta> attributed to <cause> (metrics.json)
-- unexpected_findings: <one or two sentences, or "none">
+- intended_effect_confirmed: partial — memory recall confirmed (metrics.json:mem_G96_real_recall 0.98 vs win_G96_real_recall 0.39); the imagined-vs-seen claim is unresolved (metric artifact, gap confound)
+- leakage_check: held-out maps 2000-2199 for every evaluation; poses are oracle (simulator), stated as a limitation
+- overfitting_signal: train=n/a val=n/a gap=n/a — on-the-fly data (metrics.json)
+- delta_from_prior: vs 2026-11-23-mg3-memory-ablation, the same retrieval effect (MG3 memory on/off) reproduced from scratch, now measured against ground truth
+- unexpected_findings: first-sight agreement is low (0.26-0.55) even when mirror agreement is high, so models revise the edge strips they have just revealed; the eval-v1 file (eval_v1.json) predates the mirror metric
 - next_candidates:
-  - <one-sentence proposal 1>
-  - <one-sentence proposal 2>
-
+  - Matched-gap comparison of imagined vs real recall (bin both by time since last seen) before making any claim about imagination.
+  - Replace oracle poses with action-integrated poses (collisions make these wrong) to test how fragile pose retrieval is.
 ## Follow-up
 
 - ...

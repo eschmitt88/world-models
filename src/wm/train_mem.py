@@ -143,7 +143,8 @@ def evaluate(dirs, gaps, n=24, steps=10, seed=99):
                 first = torch.full((n, S, S), -1, dtype=torch.long, device="cuda")   # tile id at first sight
                 src = torch.zeros((n, S, S), dtype=torch.long, device="cuda")        # 1 = real, 2 = imagined
                 first_t = torch.zeros((n, S, S), dtype=torch.long, device="cuda")
-                stats = {"real": [], "imag": []}
+                stats = {"real": [], "imag": [], "mirror_real": [], "mirror_imag": []}
+                outbound = {}   # t -> decoded tile ids (raw pose) of the generated outbound frame
                 bi = torch.arange(n, device="cuda")[:, None, None]
                 for t in range(T):
                     f = real[:, t] if t < K else out[:, t]
@@ -154,6 +155,15 @@ def evaluate(dirs, gaps, n=24, steps=10, seed=99):
                     true = world.true_ids(mi, ty, tx)
                     cells = torch.ones_like(pred, dtype=torch.bool); cells[:, 3, 3] = False
                     seenb = first[bi, ty, tx] >= 0
+                    if t >= K and t <= Lout and not ALIGN_:
+                        outbound[t] = pred.clone()
+                    if t > Lout and not ALIGN_ and (2 * Lout - t) in outbound:
+                        # mirror test: frame t shares its pose with outbound frame 2L - t, so every
+                        # cell sits at the same place in view; compare with the model's own drawing
+                        prev = outbound[2 * Lout - t]
+                        r = cells & (src[bi, ty, tx] == 1); im = cells & (src[bi, ty, tx] == 2)
+                        stats["mirror_real"].append(((pred == true) & r).sum().item() / max(1, r.sum().item()))
+                        stats["mirror_imag"].append(((pred == prev) & im).sum().item() / max(1, im.sum().item()))
                     if t >= K and t > Lout:            # on the way back: score revisited cells
                         gap = t - first_t[bi, ty, tx]
                         r = seenb & cells & (src[bi, ty, tx] == 1)
@@ -167,8 +177,12 @@ def evaluate(dirs, gaps, n=24, steps=10, seed=99):
                 # the last 16 frames revisit the real context; earlier return frames revisit imagined ground
                 r_last = float(np.mean(stats["real"][-16:]))
                 i_mid = float(np.mean([x for x in stats["imag"][:max(1, len(stats["imag"]) - 16)]]))
-                res[f"{name}|G{G}|{'aligned' if ALIGN_ else 'raw'}"] = dict(real_acc_end=r_last, imag_cons=i_mid, real_curve=stats["real"], imag_curve=stats["imag"])
-                print(f"{name} G={G} {'aligned' if ALIGN_ else 'raw'}: real-context recall at return {r_last:.3f} | imagined self-consistency {i_mid:.3f}", flush=True)
+                mi_ = float(np.mean(stats["mirror_imag"][:max(1, len(stats["mirror_imag"]) - 16)])) if stats["mirror_imag"] else float("nan")
+                mr_ = float(np.mean(stats["mirror_real"][-16:])) if stats["mirror_real"] else float("nan")
+                res[f"{name}|G{G}|{'aligned' if ALIGN_ else 'raw'}"] = dict(real_acc_end=r_last, imag_cons=i_mid, real_curve=stats["real"], imag_curve=stats["imag"],
+                                                                           mirror_imag=mi_, mirror_real=mr_, mirror_imag_curve=stats["mirror_imag"])
+                print(f"{name} G={G} {'aligned' if ALIGN_ else 'raw'}: real-context recall at return {r_last:.3f} | imagined self-consistency {i_mid:.3f}"
+                      + (f" | mirror: imagined {mi_:.3f} real {mr_:.3f}" if not ALIGN_ else ""), flush=True)
     return res
 
 
