@@ -41,3 +41,4 @@ has the exact time.
 2026-11-24 fetch-paper 2505.22246 → raw/papers/savov2025statespacediffuser.pdf
 2026-11-24 ingest raw/papers/savov2025statespacediffuser.pdf
 2026-11-24 fetch-paper 2504.12369 → raw/papers/xiao2025worldmem.pdf
+2026-11-24 ingest raw/papers/xiao2025worldmem.pdf

@@ -3,10 +3,10 @@ kind: concept
 name: "Spatial Memory"
 status: seedling
 added: "2026-11-24"
-sources: [savov2025statespacediffuser, alonso2024diffusion]
+sources: [savov2025statespacediffuser, alonso2024diffusion, xiao2025worldmem]
 related_concepts: ["Diffusion World Model", "Exposure Bias", "Novel View Prediction", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: ["2026-11-23-gw-memory-equal-compute", "2026-11-23-mg2-memory-horizon", "2026-11-23-mg3-memory-ablation"]
-tags: [memory, revisit, long-context, consistency, state-space-model]
+tags: [memory, revisit, long-context, consistency, state-space-model, retrieval, pose-indexed]
 ---
 
 # Spatial Memory
@@ -23,13 +23,20 @@ Most diffusion world models condition on a few recent frames, so a revisit
 after more than the window length is generated afresh. Our earlier trials found
 this for Matrix-Game 2.0 (about 1 s window) and a retrieval memory partly
 fixing it in Matrix-Game 3 (see the experiments above). Two published
-designs bracket the options:
+designs bracket the options :
 
 - Frame stacking only: DIAMOND's whole memory is the last few frames, which
   its authors list as a limitation ([[alonso2024diffusion]]).
 - A recurrent state: [[savov2025statespacediffuser]] adds a Mamba state
   over the full history and recalls a marker colour across 50 to 150 steps on
   MiniGrid, but with ground-truth history, not free rollout.
+- An explicit retrieval bank: [[xiao2025worldmem]] stores every past latent
+  frame with its pose and timestamp, retrieves 8 by field-of-view overlap and
+  recency, and reads them by cross-attention with pose and time embeddings.
+  It is the explicit pose and timestamp-indexed form of the mechanism
+  Matrix-Game 3's retrieval resembles. Minecraft PSNR 100 frames after a
+  600-frame bank: 23.98 vs 17.32 for plain diffusion forcing. It needs
+  simulator poses and is scored on recall, not long free rollouts.
 
 The project's `gw-memory-equal-compute` experiment tests retrieval against
 plain context on revisits in our own gridworld, where the true state is

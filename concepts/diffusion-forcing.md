@@ -3,7 +3,7 @@ kind: concept
 name: "Diffusion Forcing"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, worldlabs-ai-atlas, yin2024from, chen2024diffusion, song2025history, huang2025self]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, worldlabs-ai-atlas, yin2024from, chen2024diffusion, song2025history, huang2025self, xiao2025worldmem]
 related_concepts: ["Exposure Bias", "Bidirectional vs Causal Video Diffusion", "Novel View Prediction"]
 related_experiments: []
 tags: [autoregressive-diffusion, training-objective, noise-schedule, rollout-stability]
