@@ -16,7 +16,7 @@ and `/new-experiment`.
   bidirectional, diffusion forcing, exposure bias, few-step distillation,
   latent actions (5 concepts).
 - Not yet ripe: a **spatial / representation** cluster (Novel View Prediction,
-  Latent-Predictive World Models, Real-to-Sim-to-Real), 3 concepts.
+  Latent-Predictive World Models, Real-to-Sim-to-Real, Spatial Memory), 4 concepts.
 
 ## Active experiments
 
