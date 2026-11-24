@@ -70,3 +70,4 @@ has the exact time.
 2026-11-24 curate 2026-11-23-weather-rollout-crossover.md ingested=10 declined=20 dup=3
 2026-11-24 decision 0002 evidence update (curation: contraction prior weakened; novelty wording narrowed)
 2026-11-24 promote-moc long-rollout-stability (5 concepts)
+2026-11-24 promote-moc declined (no ripe cluster: 10/15 concepts mapped; unmapped 5 share no tag, best sub-theme spatial-3d = 3-4 concepts [novel-view-prediction, spatial-memory, real-to-sim-to-real, ±latent-predictive-world-models]; diffusion-world-model fits interactive-world-models)
