@@ -89,3 +89,14 @@ These notes come from reading the full papers, past the abstracts. The decision 
 - **Spectral sign is unsettled.** PDE-Refiner points to neglected high frequencies, Lehmann to excess small-scale energy, and FreqForcing to low-band loss plus high-band jitter. A spectral predictor must be pre-registered two-sided (`concepts/spectral-rollout-diagnostics.md`).
 - **Snap-to-tile arm:** ACE2's exact conservation is an in-model corrector, which is a precedent. PDE-Refiner found that exact invariance correction did not lengthen rollouts, a mild prior against the arm.
 - **Calibration at 8 members:** the spread-skill correction factor is sqrt(9/8)≈1.06, and a rank histogram has only 9 bins ([[price2023gencast]]). The gridworld's unlimited true samples make the fair-CRPS estimator usable.
+
+## Update 2026-11-24 (first evaluation: `experiments/2026-11-24-gw-weather-climate-eval`)
+
+Three of four kill criteria passed: climate drifts, it warns early, and
+spread predicts error. **Gaussian contraction failed:** it orders survival
+the wrong way across df and tf. The claim is revised to *two failure modes*.
+Off-manifold failure (teacher forcing) is fixed by projection (snap, the
+Thermalizer's class). On-manifold climate collapse (clean-context diffusion
+forcing) is invisible to validity metrics and fixed by context noise.
+On-manifold perturbation recovery, not Gaussian gain, is the candidate
+predictor; it needs ≥6 models to establish.
