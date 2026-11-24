@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger, pedersen2025thermalizer, lippe2023pderefiner, zhao2026frechet, li2026freqforcing]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger, pedersen2025thermalizer, lippe2023pderefiner, zhao2026frechet, li2026freqforcing, wang2026worldprobe]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -88,3 +88,7 @@ world models.
   low-band energy over a 60 s rollout, and takes Self Forcing from 5 s to 120 s
   without training ([[li2026freqforcing]]; preprint, text-to-video, no actions;
   see [[Spectral Rollout Diagnostics]]).
+- WorldProbe measures the downstream picture across ten public interactive
+  models: per-rollout quality slopes are negative for nine of ten (visual) and
+  all ten (content) over up to 180 s, with abrupt collapse in the older models
+  ([[wang2026worldprobe]]; VLM- and IQA-scored, survivors only).

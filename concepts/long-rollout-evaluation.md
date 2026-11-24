@@ -3,7 +3,7 @@ kind: concept
 name: "Long-Rollout Evaluation"
 status: seedling
 added: "2026-11-24"
-sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast, lippe2023pderefiner, zhao2026frechet, li2026freqforcing]
+sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast, lippe2023pderefiner, zhao2026frechet, li2026freqforcing, wang2026worldprobe]
 related_concepts: ["Exposure Bias", "Diffusion Forcing", "Spatial Memory"]
 related_experiments: ["2026-11-23-gw-drift-df-vs-tf", "2026-11-23-gw-weather-climate-eval"]
 tags: [evaluation, benchmark, rollout, horizon, state-space, weather-climate]
@@ -88,6 +88,14 @@ imports the split. Evidence so far:
   Self-Forcing rollout, but as figures and not as a scored metric, and its
   quality scores are VBench-Long image and video metrics. See
   [[Spectral Rollout Diagnostics]].
+- The nearest long-horizon benchmark for world models: [[wang2026worldprobe]]
+  runs 10 public models to 180 s under an online VLM agent and reports, per
+  model, the mean and the per-rollout least-squares slope of per-frame visual
+  and VLM content scores against elapsed time, plus VLM-scored revisit
+  consistency. It finds local quality degrading more slowly in newer models
+  while memory stays weak, so local slope and memory dissociate. No ground
+  truth, no reference trajectory, no distributional or calibration measure, no
+  noise floor, and slopes are over survivors of a retry-and-filter protocol.
 - Ensemble calibration, the third part of ADR 0002, is covered in
   [[Ensemble Calibration]]: [[price2023gencast]] defines CRPS, spread-skill and rank
   histograms for 50-member, 15-day forecasts. It does not reach long horizons.

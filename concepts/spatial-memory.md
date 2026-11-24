@@ -3,7 +3,7 @@ kind: concept
 name: "Spatial Memory"
 status: seedling
 added: "2026-11-24"
-sources: [savov2025statespacediffuser, alonso2024diffusion, xiao2025worldmem]
+sources: [savov2025statespacediffuser, alonso2024diffusion, xiao2025worldmem, wang2026worldprobe]
 related_concepts: ["Diffusion World Model", "Exposure Bias", "Novel View Prediction", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: ["2026-11-23-gw-memory-equal-compute", "2026-11-23-mg2-memory-horizon", "2026-11-23-mg3-memory-ablation"]
 tags: [memory, revisit, long-context, consistency, state-space-model, retrieval, pose-indexed]
@@ -37,6 +37,16 @@ designs bracket the options:
   Matrix-Game 3's retrieval resembles. Minecraft PSNR 100 frames after a
   600-frame bank: 23.98 vs 17.32 for plain diffusion forcing. It needs
   simulator poses and is scored on recall, not long free rollouts.
+
+A fourth, evaluative data point: [[wang2026worldprobe]] drives 10 public
+world models for up to 180 s with an agent that chooses actions online and
+scores revisits with a VLM (0 to 10, poses estimated from the generated
+video). Memory is weak throughout: Matrix-Game 3.0 6.31 and AlayaWorld 6.53 at
+the top, Matrix-Game 2.0 4.01 and LingBot-World 3.78 at the bottom. Coarse layout
+survives a short absence while texture and entity detail drift, and a revisit
+from a new direction "often produces an entirely different scene". Memory does
+not rank models like the local quality slope does. This agrees in direction
+with our MG2 and MG3 trials; the scoring is VLM-only with no ground truth.
 
 The project's `gw-memory-equal-compute` experiment tests retrieval against
 plain context on revisits in our own gridworld, where the true state is

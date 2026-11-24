@@ -64,3 +64,4 @@ has the exact time.
 2026-11-24 fetch-paper 2607.27110 → raw/papers/li2026freqforcing.pdf
 2026-11-24 ingest raw/papers/li2026freqforcing.pdf
 2026-11-24 fetch-paper 2610.39721 → raw/papers/wang2026worldprobe.pdf
+2026-11-24 ingest raw/papers/wang2026worldprobe.pdf
