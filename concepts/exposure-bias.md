@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger, pedersen2025thermalizer, lippe2023pderefiner, zhao2026frechet]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger, pedersen2025thermalizer, lippe2023pderefiner, zhao2026frechet, li2026freqforcing]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -82,3 +82,9 @@ world models.
   pretraining horizon. Flow matching on self-generated history alone (FM-only)
   barely helped, and DMD configurations tried gave no gain
   ([[zhao2026frechet]]; preprint, one 1B model; see [[Distributional Rollout Training]]).
+- FreqForcing keeps Self Forcing's weights and fixes the same drift at
+  inference: attention sink plus a low-pass fusion with the attention output of
+  six early anchor frames. It reports that the drift appears as lost DC and
+  low-band energy over a 60 s rollout, and takes Self Forcing from 5 s to 120 s
+  without training ([[li2026freqforcing]]; preprint, text-to-video, no actions;
+  see [[Spectral Rollout Diagnostics]]).

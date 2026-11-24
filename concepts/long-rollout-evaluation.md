@@ -3,7 +3,7 @@ kind: concept
 name: "Long-Rollout Evaluation"
 status: seedling
 added: "2026-11-24"
-sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast, lippe2023pderefiner, zhao2026frechet]
+sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast, lippe2023pderefiner, zhao2026frechet, li2026freqforcing]
 related_concepts: ["Exposure Bias", "Diffusion Forcing", "Spatial Memory"]
 related_experiments: ["2026-11-23-gw-drift-df-vs-tf", "2026-11-23-gw-weather-climate-eval"]
 tags: [evaluation, benchmark, rollout, horizon, state-space, weather-climate]
@@ -83,6 +83,11 @@ imports the split. Evidence so far:
   or ensembles. Its own limitations (population metrics mask local failures, a
   coarse feature space misses fine periodic texture) mark where ADR 0002's
   state-level statistics add information. See [[Distributional Rollout Training]].
+- A time-resolved spectral view of video drift: [[li2026freqforcing]] tracks
+  DC, low and high band energy of attention outputs and frames over 60 s of
+  Self-Forcing rollout, but as figures and not as a scored metric, and its
+  quality scores are VBench-Long image and video metrics. See
+  [[Spectral Rollout Diagnostics]].
 - Ensemble calibration, the third part of ADR 0002, is covered in
   [[Ensemble Calibration]]: [[price2023gencast]] defines CRPS, spread-skill and rank
   histograms for 50-member, 15-day forecasts. It does not reach long horizons.
