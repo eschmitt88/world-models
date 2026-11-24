@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger, pedersen2025thermalizer]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -67,3 +67,8 @@ world models.
   5.1 / 7.3 (DF) to 3.3 / 3.6, but round 1 alone can be worse than the seed
   model, and the reversal assumes the data is time-reversible
   ([[po2025bagger]]; preprint, no code yet).
+- Thermalizer treats the same drift in PDE emulators as an inference-time
+  fix: a separate diffusion prior of the stationary distribution denoises
+  off-attractor states during rollout, leaving the emulator untouched. It
+  restores the attractor, not the trajectory
+  ([[pedersen2025thermalizer]]; peer-reviewed, 2D turbulence only).
