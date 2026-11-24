@@ -44,3 +44,4 @@ has the exact time.
 2026-11-24 ingest raw/papers/xiao2025worldmem.pdf
 2026-11-24 fetch-paper 2511.23465 → raw/papers/li2025smallworlds.pdf
 2026-11-24 ingest raw/papers/li2025smallworlds.pdf
+2026-11-24 fetch-paper 2608.01127 → raw/papers/zhao2026miniworld.pdf
