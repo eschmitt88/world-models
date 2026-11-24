@@ -3,7 +3,7 @@ kind: concept
 name: "Ensemble Calibration"
 status: seedling
 added: "2026-11-24"
-sources: [price2023gencast, lippe2023pderefiner]
+sources: [price2023gencast, lippe2023pderefiner, mei2025world]
 related_concepts: ["Long-Rollout Evaluation", "Diffusion World Model", "Conservation by Construction"]
 related_experiments: ["2026-11-23-gw-weather-climate-eval"]
 tags: [weather-climate, ensemble, CRPS, spread-skill, rank-histogram, evaluation]
@@ -42,6 +42,17 @@ A trajectory-level precedent for that correlation test: [[lippe2023pderefiner]] 
 32 rollouts per test trajectory and finds the time when samples decorrelate predicts
 the time the rollout stays accurate (R^2 = 0.86, KS equation, single model). It is
 whole-rollout decorrelation time, not per-cell spread against error.
+
+The nearest world-model neighbour is [[mei2025world]] (C3): an action-conditioned
+latent video model with a probe trained with Brier or cross-entropy loss to predict
+whether each latent subpatch is within an L1 threshold of the truth. It is scored
+with ECE, MCE, reliability diagrams and a confidence-error correlation (about -0.17
+to -0.37), averaged over all frames of single-pass rollouts of unstated length (no
+lead-time axis). It uses no CRPS, spread-skill ratio or rank histogram, and treats
+ensembles as too costly; its own ensemble-variance baseline correlates +0.42 with
+latent error (ensemble size not stated), a weak data point for the ADR's "spread
+tracks error" kill criterion. It also reports that diffusion forcing raised ECE to
+about 0.33.
 
 ## Connections
 

@@ -3,7 +3,7 @@ kind: concept
 name: "Long-Rollout Evaluation"
 status: seedling
 added: "2026-11-24"
-sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast, lippe2023pderefiner, zhao2026frechet, li2026freqforcing, wang2026worldprobe]
+sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast, lippe2023pderefiner, zhao2026frechet, li2026freqforcing, wang2026worldprobe, mei2025world]
 related_concepts: ["Exposure Bias", "Diffusion Forcing", "Spatial Memory"]
 related_experiments: ["2026-11-23-gw-drift-df-vs-tf", "2026-11-23-gw-weather-climate-eval"]
 tags: [evaluation, benchmark, rollout, horizon, state-space, weather-climate]
@@ -99,6 +99,9 @@ imports the split. Evidence so far:
 - Ensemble calibration, the third part of ADR 0002, is covered in
   [[Ensemble Calibration]]: [[price2023gencast]] defines CRPS, spread-skill and rank
   histograms for 50-member, 15-day forecasts. It does not reach long horizons.
+  The one world-model calibration paper found, [[mei2025world]] (C3, robot video,
+  ECE with a learned confidence head), reports no horizon dependence and names
+  long-duration generation as future work.
 
 ## Connections
 
