@@ -28,3 +28,24 @@ SessionEnd hook backstops this if you forget.
 - A layout-aware metric (depth agreement, DINOv2 patches) to replace LPIPS in memory tests.
 - Try Self Forcing (Wan 1.3B) and Matrix-Game 4.0 (engine-grounded, explicit geometry; officially supports the 5080). Ingest the MG3 tech report and seed a "spatial memory" concept for the MoC.
 - Gated checkpoints (Oasis, SEVA, Cosmos) need a Hugging Face token on this box.
+
+## 2026-11-24
+
+### Did
+- Asked whether a lower-dimensional world would let us *train* world models. Consulted Fable twice and ran a web sweep (`raw/_candidates/2026-11-23-small-world-world-models.md`), then measured throughput (47M DiT ≈ 2,500 frames/s on the 5080). Wrote ADR 0001.
+- Built the world and models: `src/wm/gridworld.py` (persistent tile maps, egocentric 64-px view, ~400k frames/s render, exact decode to tile ids, revisit walks, phase-correlation frame shift), `src/wm/df.py` (22M pixel block-causal DiT; diffusion or teacher forcing; pose-retrieved memory slots), `train_df.py`, `train_mem.py`, `climate_eval.py`.
+- User asked for a weather-ML crossover. Consulted Fable twice and ran a web sweep (`raw/_candidates/2026-11-23-weather-rollout-crossover.md`). Wrote ADR 0002 (weather vs climate evaluation, kill criteria pre-registered).
+- Overnight: 4 models trained, 3 experiments done: `2026-11-23-gw-drift-df-vs-tf`, `2026-11-24-gw-weather-climate-eval`, `2026-11-23-gw-memory-equal-compute`.
+- Published the report "Small World, Long Rollouts" (claude.ai artifact TsgA6iexv5JRuSHHVJRUjJ; source in `reports/2026-11-24-small-world/`).
+
+### Findings
+- Teacher forcing is best short-horizon (32-frame accuracy 0.92 vs 0.73) and collapses long (0.15-0.20 at 384 frames). Diffusion forcing at context noise 0.1 stays exact for 384 frames when still or pacing (12× the window), but drifts at noise 0. The context-noise curve is U-shaped, the same as MG2's, now measured against ground truth.
+- Weather/climate: three of four kill criteria passed (climate drifts and warns early; spread predicts error, ρ 0.50-0.87). Gaussian contraction failed (it orders survival the wrong way); on-manifold shift recovery orders it right.
+- Two failure modes. tf goes **off-manifold**, and truth-free snap-to-tile rescues it (skill 0 → 0.27). df@0 collapses **on-manifold** into a wrong climate (uniform frames): snapping is useless and context noise fixes it. Validity metrics rank df@0 above tf; climate ranks them the other way.
+- Memory: 4 pose-retrieved frames hold recall at 0.98 to a 252-frame round trip vs 0.39 for 36 frames of plain context (expected; a harness check). "Imagined regions forgotten" was a first-sight metric artifact: models revise their first drafts of newly revealed edges.
+- Process lessons: concurrent GPU smoke tests OOM'd a production run (rule: none while a run is active). tf and memory arms need gradient accumulation at batch 32. `set -e` in a chain script skips everything after one failure. Background waits on `systemctl` misfire.
+
+### Next
+- Paper (ADR 0002): 2-3 seeds per regime plus mixed-noise arms (≥6 models) to test on-manifold recovery as the survival predictor; a learned Thermalizer prior vs snap (predicted to help only tf); matched-sample df vs tf.
+- Memory: a matched-gap imagined-vs-real comparison; action-integrated poses instead of oracle ones.
+- Take the climate split back to MG2's attractors.

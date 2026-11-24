@@ -88,7 +88,7 @@ summary { cursor: pointer; font-size: 0.85rem; color: var(--ink-2); }
     <div class="eyebrow">world-models · gridworld · 24 Nov 2026</div>
     <h1>Small world, long rollouts</h1>
     <p class="lede">Big pretrained world models give you no ground truth, so drift and memory can only be judged by eye. So I built a 2D world where every generated frame decodes back to the exact map, and trained 22M-parameter world models on it from scratch on one GPU overnight. Then I borrowed the weather forecasters' playbook to see how they fail.</p>
-    <div class="meta"><span>RTX 5080 · 16 GB</span><span>22M-param pixel DiT</span><span>64×64 view · 8 px tiles</span><span>3.5 h per model</span></div>
+    <div class="meta"><span>RTX 5080 · 16 GB</span><span>22M-param pixel DiT</span><span>64×64 view · 8 px tiles</span><span>4 models · one night</span></div>
   </header>
 </div>
 
@@ -196,7 +196,26 @@ summary { cursor: pointer; font-size: 0.85rem; color: var(--ink-2); }
   </section>
 </div>
 
-<!--MEMORY-->
+<div class="wide">
+  <section>
+    <div class="intro">
+      <div class="eyebrow">Experiment 3</div>
+      <h2>Memory: four retrieved frames beat 36 frames of context</h2>
+      <p>Same model size and the same tokens per sequence. One version sees the last 36 frames. The other sees the last 32 plus 4 older frames <b>retrieved by camera pose</b>, the mechanism that let Matrix-Game 3.0 return to its start view. The test: walk out, come back by the same path, and score the return against the real start.</p>
+    </div>
+    <div class="split">
+      <div class="chart" id="chart-mem">
+        <div class="ttl">Recall of the real start on return</div>
+        <div class="sub">Tile accuracy on cells the real context showed · 24 held-out contexts</div>
+        <div class="legend"><span><i style="background:var(--s1)"></i>32 frames + 4 retrieved</span><span><i style="background:var(--ink-3)"></i>36 frames, no memory</span><span><i style="background:var(--s3)"></i>diffusion forcing from exp. 1</span></div>
+      </div>
+      <div class="intro">
+        <p>Retrieval holds the start at <b>0.98</b> after a 252-frame round trip; plain context falls to <b>0.39</b>. This reproduces MG3's memory result against ground truth. It is expected (StateSpaceDiffuser, WorldMem), so I count it as a check that the setup works rather than a finding.</p>
+        <p>One metric fooled me first. Comparing each revisited cell with its <i>first</i> generated appearance made imagined regions look badly remembered (0.26–0.55). But a first appearance is a sliver at the view edge, and the model <b>revises its first drafts</b> while they're still in view. Compared at the same pose instead, the memory model keeps its own inventions at 0.80–0.90. Whether imagined places are remembered worse than seen ones needs a gap-matched comparison next.</p>
+      </div>
+    </div>
+  </section>
+</div>
 
 <div class="col">
   <section>
@@ -273,7 +292,12 @@ summary { cursor: pointer; font-size: 0.85rem; color: var(--ink-2); }
     const a = CL[k]; const sk = a.skill[a.skill.length - 1], cl = a.climate[a.climate.length - 1];
     return `<tr><td>${n}</td><td${k === "df_cnbest" || k === "tf_cn0_snap8" ? ' class="good"' : ""}>${sk.toFixed(2)}</td><td>${cl.toFixed(3)}</td><td>${mean(a.offman).toFixed(2)}</td><td>${a.rho.toFixed(2)}</td></tr>`;
   }).join("");
-  drawDrift(); drawWC();
-  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { drawDrift(); drawWC(); }, 150); });
+  const MEM = {"mem": [[76, 0.994], [108, 0.983], [156, 0.989], [252, 0.976]], "win": [[76, 0.754], [108, 0.599], [156, 0.58], [252, 0.391]], "df": [[76, 0.606], [108, 0.558], [156, 0.467], [252, 0.287]]};
+  const drawMem = () => chart(document.getElementById("chart-mem"),
+    [["mem", "32 + 4 retrieved", "--s1"], ["win", "36 frames, no memory", "--ink-3"], ["df", "diffusion forcing (exp. 1)", "--s3"]].map(([k, n, c]) => ({name: n, c, dots: true, pts: MEM[k]})),
+    {aria: "Recall of the real start view on return versus round-trip length", x0: 60, x1: 260, xt: [76, 108, 156, 252], xlabel: "round trip (frames away and back)",
+     y0: 0, y1: 1, yt: [0, .25, .5, .75, 1], yf: t => t.toFixed(2), tf: v => "recall " + v.toFixed(2)});
+  drawDrift(); drawWC(); drawMem();
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { drawDrift(); drawWC(); drawMem(); }, 150); });
 })();
 </script>
