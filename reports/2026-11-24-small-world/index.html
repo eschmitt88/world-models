@@ -1,0 +1,279 @@
+<title>Small World, Long Rollouts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with wide breakout figures, same family as "Look Away, Look Back"; tile-grid motif from the world itself. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --ink: #12151c; --ink-2: #4a5160; --ink-3: #737a88;
+  --rule: #dde1e8; --accent: #2a5bd7; --accent-soft: #e6ecfb; --band: #e9ebf0;
+  --s1: #2a78d6;  /* diffusion forcing, context noise > 0 */
+  --s2: #eb6834;  /* teacher forcing */
+  --s3: #1baf7a;  /* diffusion forcing, context noise 0 */
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101318; --surface: #171b22; --ink: #eceef3; --ink-2: #b4bac6; --ink-3: #8a91a0;
+    --rule: #2a303b; --accent: #7fa2f5; --accent-soft: #1d2740; --band: #222833;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101318; --surface: #171b22; --ink: #eceef3; --ink-2: #b4bac6; --ink-3: #8a91a0;
+  --rule: #2a303b; --accent: #7fa2f5; --accent-soft: #1d2740; --band: #222833;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+.col { max-width: 46rem; margin: 0 auto; }
+.wide { max-width: 64rem; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.55rem; font-weight: 600; letter-spacing: -0.01em; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); font-size: 0.86em; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+header.top { padding-block: 56px 28px; display: grid; gap: 14px; }
+.lede { font-size: 1.15rem; color: var(--ink-2); max-width: 41rem; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--ink-3); font-size: 0.85rem; font-family: var(--font-mono); }
+section { padding-block: 36px; border-top: 1px solid var(--rule); display: grid; gap: 18px; }
+.intro { display: grid; gap: 12px; max-width: 46rem; }
+.findings { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); padding-block: 8px 28px; }
+.finding { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.finding .num { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.finding .num small { font-size: 0.95rem; font-weight: 500; color: var(--ink-3); margin-left: 4px; }
+.finding p { color: var(--ink-2); font-size: 0.92rem; line-height: 1.5; }
+.finding .tag { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+figcaption { font-size: 0.86rem; color: var(--ink-3); line-height: 1.5; }
+video, figure img { width: 100%; max-width: 100%; border-radius: 8px; display: block; background: #000; image-rendering: pixelated; }
+.two { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+.chart { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 14px 8px; position: relative; min-width: 0; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .ttl { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
+.chart .sub { font-size: 0.8rem; color: var(--ink-3); margin-bottom: 6px; }
+.axis text, .lbl { font-family: var(--font-mono); font-size: 10.5px; fill: var(--ink-3); }
+.axis line { stroke: var(--rule); }
+.grid line { stroke: var(--rule); stroke-dasharray: 2 3; }
+.dlabel { font-family: var(--font-body); font-size: 11.5px; font-weight: 600; fill: var(--ink); }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font: 12px/1.4 var(--font-mono); padding: 6px 8px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -115%); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.8rem; color: var(--ink-2); margin: 2px 0 4px; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 500 0.85rem var(--font-body); color: var(--ink-2); background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.seg button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 12px; border-bottom: 1px solid var(--rule); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-weight: 600; color: var(--ink-2); }
+td.good { color: var(--s1); font-weight: 600; }
+.note { font-size: 0.9rem; color: var(--ink-2); background: var(--surface); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; max-width: 46rem; }
+ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; }
+ul.plain li { color: var(--ink-2); }
+.split { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: 1fr; } }
+details { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 8px 12px; }
+summary { cursor: pointer; font-size: 0.85rem; color: var(--ink-2); }
+</style>
+
+<div class="col">
+  <header class="top">
+    <div class="eyebrow">world-models · gridworld · 24 Nov 2026</div>
+    <h1>Small world, long rollouts</h1>
+    <p class="lede">Big pretrained world models give you no ground truth, so drift and memory can only be judged by eye. So I built a 2D world where every generated frame decodes back to the exact map, and trained 22M-parameter world models on it from scratch on one GPU overnight. Then I borrowed the weather forecasters' playbook to see how they fail.</p>
+    <div class="meta"><span>RTX 5080 · 16 GB</span><span>22M-param pixel DiT</span><span>64×64 view · 8 px tiles</span><span>3.5 h per model</span></div>
+  </header>
+</div>
+
+<div class="wide">
+  <div class="findings">
+    <div class="finding">
+      <div class="tag">Teacher forcing</div>
+      <div class="num">1.00 → 0.15</div>
+      <p>Best of all models for the first 16 frames. By frame 350 it gets only 15% of cells right, even when the agent stands still and every cell is known.</p>
+    </div>
+    <div class="finding">
+      <div class="tag">Diffusion forcing + context noise</div>
+      <div class="num">1.00<small>at 384 frames</small></div>
+      <p>Re-noise the model's own past frames slightly (0.1) and it reproduces the world exactly for 384 frames, 12× its training window. With clean context the same model drifts.</p>
+    </div>
+    <div class="finding">
+      <div class="tag">Two kinds of failure</div>
+      <div class="num">valid ≠ right</div>
+      <p>Teacher forcing dissolves into invalid texture. Clean-context diffusion forcing draws perfectly valid tiles of the <i>wrong</i> world. Realism metrics rank that failure as the better one; the weather-style "climate" metric doesn't.</p>
+    </div>
+  </div>
+</div>
+
+<div class="wide">
+  <section>
+    <div class="split">
+      <div class="intro">
+        <div class="eyebrow">The world</div>
+        <h2>A world you can check pixel by pixel</h2>
+        <p>Each world is a procedurally generated 64×64-tile map of rooms, corridors and landmark glyphs, under smooth lighting. The model only ever sees a 64×64-pixel window centred on the agent (the white box), so places scroll out of view and come back. That keeps the look-away-and-return problem of the 3D models.</p>
+        <p>Because tiles come from a fixed atlas, any generated frame can be decoded back to tile ids at a known pose. That gives exact accuracy against the true map, plus an off-manifold rate for cells that match no tile at all. The renderer makes about 400,000 frames per second on the GPU, so training data is generated on the fly and evaluation uses 200 maps the model never saw.</p>
+      </div>
+      <figure><img src="assets/map.png" alt="A procedurally generated map of coloured rooms and corridors with landmark glyphs; a white box marks the agent's 64-pixel view"><figcaption>One held-out map (512×512 px). The white box is everything the model sees in one frame.</figcaption></figure>
+    </div>
+    <figure><img src="assets/views.png" alt="Eight consecutive egocentric 64-pixel views along a walk" style="background:transparent"><figcaption>What the model sees: the egocentric view every 20 steps along a walk. Each move scrolls 2 px.</figcaption></figure>
+  </section>
+</div>
+
+<div class="wide">
+  <section>
+    <div class="intro">
+      <div class="eyebrow">Experiment 1</div>
+      <h2>Teacher forcing vs diffusion forcing, 384 frames out</h2>
+      <p>Two copies of the same 22M-parameter model, same data, 3.5 h each. <b>Teacher forcing</b> always predicts the next frame from clean, real history. <b>Diffusion forcing</b> gives every frame its own noise level during training, so it learns to work from imperfect history. Each rollout starts from 31 real frames, then the models generate 384 more on their own while the agent stands still, paces back and forth, or walks. Standing still and pacing never leave the area the real context showed, so every cell has a known right answer.</p>
+    </div>
+    <figure>
+      <div class="seg" role="group" aria-label="Choose the action script">
+        <button type="button" id="clip-pace" data-clip="pace" aria-pressed="true">Pacing</button>
+        <button type="button" id="clip-still" data-clip="still" aria-pressed="false">Standing still</button>
+      </div>
+      <video id="driftclip" src="assets/drift_pace.mp4" poster="assets/drift_pace.jpg" controls muted loop playsinline preload="metadata"></video>
+      <figcaption>Two held-out rollouts, played at 2× speed. Columns: truth · teacher forcing · diffusion forcing with clean context · diffusion forcing with context noise 0.1. The poster frame is generated frame 299.</figcaption>
+    </figure>
+    <div class="chart" id="chart-drift">
+      <div class="ttl">Accuracy on known cells, by frame</div>
+      <div class="sub">Tile accuracy on cells the real context showed · 16 held-out contexts · 8-frame means</div>
+      <div class="seg" role="group" aria-label="Choose the action script for the chart" style="margin:4px 0 6px">
+        <button type="button" id="ch-still" data-s="still" aria-pressed="false">Still</button>
+        <button type="button" id="ch-pace" data-s="pace" aria-pressed="true">Pace</button>
+        <button type="button" id="ch-walk" data-s="walk" aria-pressed="false">Walk</button>
+      </div>
+      <div class="legend"><span><i style="background:var(--s2)"></i>teacher forcing</span><span><i style="background:var(--s3)"></i>diffusion forcing, noise 0</span><span><i style="background:var(--s1)"></i>diffusion forcing, noise 0.1</span></div>
+    </div>
+    <p class="note">Same U-shape as Matrix-Game 2.0's context-noise knob in the first report, now measured against ground truth. Diffusion forcing is best at a small nonzero context noise (0.1–0.2) and worse at 0 and at 0.4. Teacher forcing never saw noisy context, so any noise hurts it at once.</p>
+  </section>
+</div>
+
+<div class="wide">
+  <section>
+    <div class="intro">
+      <div class="eyebrow">Experiment 2 · the weather crossover</div>
+      <h2>Weather vs climate for world models</h2>
+      <p>ML weather models separate <b>weather</b> skill (getting tomorrow right) from <b>climate</b> (keeping the long-run statistics right after the forecast has lost the details). I applied the same split here. <b>Weather</b> is skill on cells the context determined, against chance. <b>Climate</b> is whether the regions a model <i>invents</i> have the map generator's statistics: 2×2 wall/floor/landmark patterns, compared with real frames by Jensen-Shannon divergence. A literature sweep found neither split used for action-conditioned world models.</p>
+    </div>
+    <div class="two">
+      <div class="chart" id="chart-skill">
+        <div class="ttl">Weather: skill on known cells</div>
+        <div class="sub">(accuracy − chance) / (1 − chance) · 16 contexts × 8 ensemble members · walking</div>
+        <div class="legend"><span><i style="background:var(--s2)"></i>teacher forcing</span><span><i style="background:var(--s3)"></i>diff. forcing, noise 0</span><span><i style="background:var(--s1)"></i>diff. forcing, noise 0.2</span></div>
+      </div>
+      <div class="chart" id="chart-climate">
+        <div class="ttl">Climate: statistics of invented regions</div>
+        <div class="sub">JS divergence from real-map patterns · lower is better · shaded band = real-vs-real noise floor</div>
+        <div class="legend"><span><i style="background:var(--s2)"></i>teacher forcing</span><span><i style="background:var(--s3)"></i>diff. forcing, noise 0</span><span><i style="background:var(--s1)"></i>diff. forcing, noise 0.2</span></div>
+      </div>
+    </div>
+    <div class="split">
+      <div class="intro">
+        <h3>Two failure modes, two cures</h3>
+        <p><b>Teacher forcing fails off the manifold.</b> Up to 35% of its late cells match no tile. A truth-free "snap" (every 8 frames, replace each cell with its nearest tile) pulls it back: final skill goes from 0.00 to 0.27 and the climate error halves. This is the failure class the weather-ML <i>Thermalizer</i> was built for.</p>
+        <p><b>Clean-context diffusion forcing fails on the manifold.</b> Only 6–8% of its cells are invalid, yet its climate is the worst of all: it settles into near-uniform frames, a decodable version of Matrix-Game 2.0's darkness attractor. Snapping does nothing for it; context noise fixes it.</p>
+        <p>So a realism metric would call clean-context diffusion forcing the healthier model, and climate says the opposite. It also flags trouble early: climate error passes the noise floor while weather skill is still high.</p>
+      </div>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>arm</th><th>skill, last bin</th><th>climate JSD, last bin</th><th>off-manifold</th><th>spread vs error ρ</th></tr></thead>
+          <tbody id="armtable"></tbody>
+        </table>
+      </div>
+    </div>
+    <details>
+      <summary>What failed: the contraction test</summary>
+      <p style="margin-top:8px;color:var(--ink-2)">The plan predicted that a one-step <i>contraction</i> test (does a model damp a small Gaussian perturbation of its context?) would predict which models survive long rollouts, as it does for weather emulators. It doesn't. Told the context is clean, diffusion forcing <i>amplifies</i> Gaussian noise (gain 1.57) and teacher forcing damps it (0.27), yet teacher forcing collapses first. An <i>on-manifold</i> perturbation does order them correctly: after a one-tile shift of the last context frame, diffusion forcing recovers (95.6% accuracy vs 98.6% unperturbed) while teacher forcing copies the shift (85% vs 100%). That revised claim needs more than two model families to stand.</p>
+    </details>
+  </section>
+</div>
+
+<!--MEMORY-->
+
+<div class="col">
+  <section>
+    <div class="eyebrow">Next</div>
+    <h2>Where this goes</h2>
+    <ul class="plain">
+      <li><b>More models for the paper claim.</b> 2–3 seeds per regime and mixed-noise training arms, to test whether on-manifold recovery predicts climate survival across at least six models.</li>
+      <li><b>A learned Thermalizer.</b> Replace the snap with a learned frame prior. The prediction is that it rescues teacher forcing's off-manifold failure and does nothing for the on-manifold attractor.</li>
+      <li><b>Back to the big models.</b> Test the climate split on Matrix-Game 2.0's darkness and neon attractors, where there's no ground truth but generator-free statistics still exist.</li>
+    </ul>
+    <p class="mono" style="color:var(--ink-3)">Code, configs, raw numbers and pre-registered hypotheses: experiments/2026-11-23-gw-drift-df-vs-tf, 2026-11-24-gw-weather-climate-eval, 2026-11-23-gw-memory-equal-compute; decisions in docs/decisions/0001 and 0002.</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  const DATA = {"drift": {"still": {"tf|0.0": [1.0, 1.0, 0.9979, 0.98, 0.915, 0.8761, 0.8418, 0.8026, 0.735, 0.6699, 0.6064, 0.5775, 0.5509, 0.5306, 0.5081, 0.4661, 0.4159, 0.3377, 0.3018, 0.2835, 0.2664, 0.2445, 0.2314, 0.2272, 0.1937, 0.1813, 0.175, 0.1481, 0.1453, 0.139, 0.1359, 0.1554, 0.1737, 0.1911, 0.1895, 0.1649, 0.1536, 0.1569, 0.1561, 0.1732, 0.179, 0.1735, 0.159, 0.1502, 0.1528, 0.1533, 0.1478, 0.131], "df|0.0": [0.9818, 0.9688, 0.9735, 0.9718, 0.9676, 0.9657, 0.9567, 0.9404, 0.9258, 0.917, 0.9131, 0.8895, 0.8571, 0.8498, 0.8457, 0.8462, 0.8239, 0.7938, 0.7959, 0.7806, 0.7842, 0.7861, 0.7861, 0.7887, 0.7891, 0.7865, 0.7861, 0.7868, 0.7887, 0.7848, 0.7866, 0.7842, 0.7749, 0.7729, 0.7707, 0.7686, 0.7669, 0.7713, 0.7977, 0.7944, 0.7834, 0.7581, 0.7581, 0.7555, 0.7526, 0.751, 0.7417, 0.7409], "df|0.1": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}, "pace": {"tf|0.0": [0.9987, 0.9962, 0.995, 0.9914, 0.987, 0.9847, 0.9861, 0.9853, 0.9827, 0.9771, 0.9695, 0.962, 0.96, 0.9541, 0.9503, 0.9161, 0.8868, 0.8468, 0.8167, 0.7563, 0.6934, 0.6399, 0.6004, 0.5241, 0.4492, 0.3923, 0.3548, 0.3334, 0.311, 0.3033, 0.2822, 0.2683, 0.2404, 0.2344, 0.2232, 0.2161, 0.1997, 0.1978, 0.1865, 0.1901, 0.1829, 0.2005, 0.2079, 0.2223, 0.2035, 0.2002, 0.1923, 0.196], "df|0.0": [0.9592, 0.8913, 0.8669, 0.8537, 0.8368, 0.8161, 0.826, 0.8073, 0.7891, 0.783, 0.7513, 0.7333, 0.7193, 0.7151, 0.6931, 0.6635, 0.6504, 0.6433, 0.6317, 0.626, 0.5964, 0.5744, 0.5697, 0.562, 0.5502, 0.5443, 0.5461, 0.5219, 0.5224, 0.5108, 0.5041, 0.488, 0.4682, 0.4807, 0.47, 0.4591, 0.4347, 0.4425, 0.4338, 0.4404, 0.4411, 0.4455, 0.447, 0.4394, 0.4319, 0.4441, 0.4314, 0.439], "df|0.1": [0.9971, 0.9972, 0.9963, 0.9972, 0.9956, 0.9967, 0.9956, 0.9967, 0.9956, 0.9975, 0.9964, 0.9977, 0.9956, 0.9972, 0.9959, 0.9972, 0.9964, 0.9973, 0.9968, 0.9965, 0.9956, 0.9959, 0.9946, 0.9951, 0.9945, 0.9951, 0.9945, 0.9944, 0.9942, 0.9951, 0.9941, 0.9946, 0.994, 0.9944, 0.9935, 0.9941, 0.9935, 0.9942, 0.9928, 0.9941, 0.9931, 0.9936, 0.993, 0.9928, 0.9912, 0.9934, 0.9918, 0.9926]}, "walk": {"tf|0.0": [0.9988, 0.9719, 0.9256, 0.8851, 0.8373, 0.7847, 0.7425, 0.7166, 0.69, 0.6677, 0.6411, 0.6512, 0.7223, 0.709, 0.6476, 0.562, 0.4937, 0.4083, 0.3551, 0.3277, 0.3371, 0.2985, 0.2591, 0.24, 0.2158, 0.1876, 0.1696, 0.1903, 0.1971, 0.2103, 0.1606, 0.1428, 0.1173, 0.1361, 0.1188, 0.1744, 0.2052, 0.2203, 0.2596, 0.2424, 0.2583, 0.3047, 0.2718, 0.2242, 0.2039, 0.1788, 0.1372, 0.1198], "df|0.0": [0.9392, 0.8552, 0.7771, 0.6915, 0.6266, 0.5459, 0.5553, 0.5583, 0.5494, 0.5138, 0.5006, 0.4861, 0.4328, 0.4029, 0.3714, 0.378, 0.3475, 0.2872, 0.2861, 0.2826, 0.2461, 0.1924, 0.1995, 0.2234, 0.1509, 0.1018, 0.1287, 0.1821, 0.2218, 0.1617, 0.1662, 0.2889, 0.3791, 0.4374, 0.5161, 0.3989, 0.3293, 0.3118, 0.3225, 0.2965, 0.3031, 0.3127, 0.279, 0.3383, 0.3467, 0.3108, 0.2631, 0.2625], "df|0.1": [0.9981, 0.9776, 0.929, 0.8877, 0.8644, 0.8541, 0.8465, 0.8303, 0.8056, 0.7713, 0.7254, 0.6925, 0.6933, 0.6215, 0.5446, 0.5426, 0.4869, 0.4226, 0.4312, 0.5006, 0.4883, 0.4226, 0.4627, 0.4319, 0.437, 0.4169, 0.4106, 0.3716, 0.4155, 0.4068, 0.3916, 0.4006, 0.3865, 0.4286, 0.4152, 0.4635, 0.478, 0.4182, 0.3564, 0.3757, 0.3139, 0.3852, 0.503, 0.4439, 0.3509, 0.3029, 0.3321, 0.2935]}}, "climate": {"df_cn0": {"skill": [0.8398, 0.519, 0.3144, -0.0101, -0.0478, -0.1738, -0.1631, -0.0548], "climate": [0.034, 0.0695, 0.1062, 0.1386, 0.1517, 0.1061, 0.1264, 0.1724], "offman": [0.0298, 0.0806, 0.0777, 0.0572, 0.0555, 0.0597, 0.0763, 0.0793], "rho": 0.5241}, "df_cnbest": {"skill": [0.9432, 0.7633, 0.6347, 0.5251, 0.481, 0.3685, 0.3015, 0.2898], "climate": [0.0213, 0.0137, 0.0249, 0.0263, 0.0217, 0.0158, 0.0171, 0.0268], "offman": [0.004, 0.0272, 0.0431, 0.0518, 0.0482, 0.0626, 0.0847, 0.0751], "rho": 0.8652}, "tf_cn0": {"skill": [0.9408, 0.7618, 0.6063, 0.4134, 0.2756, 0.0916, -0.0768, 0.0013], "climate": [0.0181, 0.0223, 0.0528, 0.0656, 0.0517, 0.0533, 0.0925, 0.1824], "offman": [0.019, 0.0855, 0.1511, 0.1873, 0.2435, 0.3103, 0.3537, 0.3505], "rho": 0.7562}, "df_cn0_snap8": {"skill": [0.8421, 0.5329, 0.3197, 0.0416, 0.0015, -0.1706, -0.1423, -0.0174], "climate": [0.0324, 0.0651, 0.1022, 0.1296, 0.1399, 0.0982, 0.1007, 0.1651], "offman": [0.0262, 0.0731, 0.0741, 0.0611, 0.0604, 0.0675, 0.0788, 0.0754], "rho": 0.5045}, "tf_cn0_snap8": {"skill": [0.9409, 0.7561, 0.6293, 0.5224, 0.4532, 0.4046, 0.36, 0.2659], "climate": [0.0179, 0.0197, 0.0441, 0.0551, 0.0468, 0.0413, 0.0565, 0.1037], "offman": [0.0127, 0.0597, 0.0894, 0.092, 0.1114, 0.1388, 0.1883, 0.1745], "rho": 0.8333}, "floor": [0.0199, 0.0079, 0.0098, 0.0077, 0.0083, 0.0085, 0.0075, 0.0066]}, "bins": 32};
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+  function chart(host, series, o) {
+    host.querySelectorAll("svg, .tip").forEach(n => n.remove());
+    const W = Math.round(Math.min(560, Math.max(330, host.clientWidth - 28))), H = Math.round(W * 0.58), m = {l: 42, r: o.r || 16, t: 10, b: 36};
+    const svg = el("svg", {viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.aria}); host.appendChild(svg);
+    const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true; host.appendChild(tip);
+    const xs = v => m.l + (v - o.x0) / (o.x1 - o.x0) * (W - m.l - m.r);
+    const ys = v => H - m.b - (v - o.y0) / (o.y1 - o.y0) * (H - m.t - m.b);
+    const g = el("g", {class: "grid"}, svg), ax = el("g", {class: "axis"}, svg);
+    o.yt.forEach(t => { el("line", {x1: m.l, x2: W - m.r, y1: ys(t), y2: ys(t)}, g); const tx = el("text", {x: m.l - 6, y: ys(t) + 3.5, "text-anchor": "end"}, ax); tx.textContent = o.yf(t); });
+    o.xt.forEach(t => { el("line", {x1: xs(t), x2: xs(t), y1: H - m.b, y2: H - m.b + 4}, ax); const tx = el("text", {x: xs(t), y: H - m.b + 16, "text-anchor": "middle"}, ax); tx.textContent = t; });
+    el("line", {x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b}, ax);
+    const xl = el("text", {x: (m.l + W - m.r) / 2, y: H - 4, "text-anchor": "middle"}, ax); xl.textContent = o.xlabel;
+    if (o.band) { el("path", {d: o.band.map((p, i) => `${i ? "L" : "M"}${xs(p[0])},${ys(p[1])}`).join("") + `L${xs(o.band[o.band.length-1][0])},${ys(0)}L${xs(o.band[0][0])},${ys(0)}Z`, fill: css("--band")}, svg); }
+    series.forEach(s => {
+      const col = css(s.c);
+      el("polyline", {points: s.pts.map(p => `${xs(p[0])},${ys(p[1])}`).join(" "), fill: "none", stroke: col, "stroke-width": 2, "stroke-linejoin": "round", "stroke-dasharray": s.dash || ""}, svg);
+      s.pts.forEach(p => {
+        if (s.dots) el("circle", {cx: xs(p[0]), cy: ys(p[1]), r: 3.5, fill: col, stroke: css("--surface"), "stroke-width": 1.5}, svg);
+        const hit = el("circle", {cx: xs(p[0]), cy: ys(p[1]), r: 9, fill: "transparent"}, svg);
+        hit.addEventListener("pointerenter", () => { tip.textContent = `${s.name} · frame ${p[0]} · ${o.tf(p[1])}`; const r = svg.getBoundingClientRect(), hr = host.getBoundingClientRect(), k = r.width / W; tip.style.left = (r.left - hr.left + xs(p[0]) * k) + "px"; tip.style.top = (r.top - hr.top + ys(p[1]) * k) + "px"; tip.hidden = false; });
+        hit.addEventListener("pointerleave", () => { tip.hidden = true; });
+      });
+    });
+  }
+  // drift chart with script selector
+  const DR = DATA.drift;
+  const SER = [["tf|0.0", "teacher forcing", "--s2"], ["df|0.0", "diff. forcing, noise 0", "--s3"], ["df|0.1", "diff. forcing, noise 0.1", "--s1"]];
+  let script = "pace";
+  const drawDrift = () => chart(document.getElementById("chart-drift"),
+    SER.map(([k, n, c]) => ({name: n, c, pts: DR[script][k].map((v, i) => [i * 8 + 4, v])})),
+    {aria: "Tile accuracy on known cells by generated frame for three models", x0: 0, x1: 384, xt: [0, 64, 128, 192, 256, 320, 384], xlabel: "generated frame",
+     y0: 0, y1: 1, yt: [0, .25, .5, .75, 1], yf: t => t.toFixed(2), tf: v => "accuracy " + v.toFixed(2)});
+  document.querySelectorAll("#chart-drift .seg button").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll("#chart-drift .seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); script = b.dataset.s; drawDrift(); }));
+  // clip selector
+  const v = document.getElementById("driftclip");
+  document.querySelectorAll("figure .seg button[data-clip]").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll("figure .seg button[data-clip]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    v.poster = "assets/drift_" + b.dataset.clip + ".jpg"; v.src = "assets/drift_" + b.dataset.clip + ".mp4"; v.load(); }));
+  // weather + climate
+  const CL = DATA.climate, B = DATA.bins;
+  const ARMS = [["tf_cn0", "teacher forcing", "--s2"], ["df_cn0", "diff. forcing, noise 0", "--s3"], ["df_cnbest", "diff. forcing, noise 0.2", "--s1"]];
+  const drawWC = () => {
+    chart(document.getElementById("chart-skill"), ARMS.map(([k, n, c]) => ({name: n, c, dots: true, pts: CL[k].skill.map((s, i) => [i * B + B / 2, s])})),
+      {aria: "Weather skill by generated frame", x0: 0, x1: 256, xt: [0, 64, 128, 192, 256], xlabel: "generated frame", y0: -0.2, y1: 1, yt: [-0.2, 0, .2, .4, .6, .8, 1], yf: t => t.toFixed(1), tf: v => "skill " + v.toFixed(2)});
+    chart(document.getElementById("chart-climate"), ARMS.map(([k, n, c]) => ({name: n, c, dots: true, pts: CL[k].climate.map((s, i) => [i * B + B / 2, s])})),
+      {aria: "Climate divergence of invented regions by generated frame", x0: 0, x1: 256, xt: [0, 64, 128, 192, 256], xlabel: "generated frame", y0: 0, y1: 0.2, yt: [0, .05, .1, .15, .2], yf: t => t.toFixed(2), tf: v => "JSD " + v.toFixed(3),
+       band: CL.floor.map((f, i) => [i * B + B / 2, f])});
+  };
+  // table
+  const rows = [["tf_cn0", "teacher forcing"], ["tf_cn0_snap8", "teacher forcing + snap"], ["df_cn0", "diff. forcing, noise 0"], ["df_cn0_snap8", "diff. forcing, noise 0 + snap"], ["df_cnbest", "diff. forcing, noise 0.2"]];
+  const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+  document.getElementById("armtable").innerHTML = rows.map(([k, n]) => {
+    const a = CL[k]; const sk = a.skill[a.skill.length - 1], cl = a.climate[a.climate.length - 1];
+    return `<tr><td>${n}</td><td${k === "df_cnbest" || k === "tf_cn0_snap8" ? ' class="good"' : ""}>${sk.toFixed(2)}</td><td>${cl.toFixed(3)}</td><td>${mean(a.offman).toFixed(2)}</td><td>${a.rho.toFixed(2)}</td></tr>`;
+  }).join("");
+  drawDrift(); drawWC();
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { drawDrift(); drawWC(); }, 150); });
+})();
+</script>
