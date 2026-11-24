@@ -22,8 +22,8 @@ context window.
 Most diffusion world models condition on a few recent frames, so a revisit
 after more than the window length is generated afresh. Our earlier trials found
 this for Matrix-Game 2.0 (about 1 s window) and a retrieval memory partly
-fixing it in Matrix-Game 3 (see the experiments above). Two published
-designs bracket the options :
+fixing it in Matrix-Game 3 (see the experiments above). Three published
+designs bracket the options:
 
 - Frame stacking only: DIAMOND's whole memory is the last few frames, which
   its authors list as a limitation ([[alonso2024diffusion]]).
