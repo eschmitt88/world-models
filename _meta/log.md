@@ -58,3 +58,4 @@ has the exact time.
 2026-11-24 fetch-paper 2312.15796 → raw/papers/price2023gencast.pdf (40.9 MB, over the 40 MB limit; left uncommitted)
 2026-11-24 ingest raw/papers/price2023gencast.pdf
 2026-11-24 fetch-paper 2308.05732 → raw/papers/lippe2023pderefiner.pdf
+2026-11-24 ingest raw/papers/lippe2023pderefiner.pdf

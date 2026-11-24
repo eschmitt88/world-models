@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger, pedersen2025thermalizer]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld, po2025bagger, pedersen2025thermalizer, lippe2023pderefiner]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -72,3 +72,7 @@ world models.
   off-attractor states during rollout, leaving the emulator untouched. It
   restores the attractor, not the trajectory
   ([[pedersen2025thermalizer]]; peer-reviewed, 2D turbulence only).
+- PDE-Refiner reports the pushforward trick (training on own predictions without
+  gradient through the input) gave no gain on KS, since it cannot learn the
+  low-amplitude content; its fix is a denoising refinement of each step instead
+  ([[lippe2023pderefiner]]; PDEs, not video).

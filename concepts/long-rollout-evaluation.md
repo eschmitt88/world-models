@@ -3,7 +3,7 @@ kind: concept
 name: "Long-Rollout Evaluation"
 status: seedling
 added: "2026-11-24"
-sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast]
+sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2, price2023gencast, lippe2023pderefiner]
 related_concepts: ["Exposure Bias", "Diffusion Forcing", "Spatial Memory"]
 related_experiments: ["2026-11-23-gw-drift-df-vs-tf", "2026-11-23-gw-weather-climate-eval"]
 tags: [evaluation, benchmark, rollout, horizon, state-space, weather-climate]
@@ -70,6 +70,11 @@ imports the split. Evidence so far:
 - Stability claims need a drift test, not only "did not blow up": the first ACE
   was "stable for 100 years" yet showed seasonal-amplitude swings and
   surface-pressure drift (as reported in ACE2).
+- A spectral view of why short-horizon accuracy misleads: [[lippe2023pderefiner]]
+  finds one-step MSE training fits only the dominant low-wavenumber band and
+  neglects low-amplitude components that limit rollout time, and that pushforward
+  and exact invariance correction did not fix it (PDEs, correlation-time
+  metric). See [[Spectral Rollout Diagnostics]]; no per-step spectrum is shown.
 - Ensemble calibration, the third part of ADR 0002, is covered in
   [[Ensemble Calibration]]: [[price2023gencast]] defines CRPS, spread-skill and rank
   histograms for 50-member, 15-day forecasts. It does not reach long horizons.

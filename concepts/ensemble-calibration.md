@@ -3,7 +3,7 @@ kind: concept
 name: "Ensemble Calibration"
 status: seedling
 added: "2026-11-24"
-sources: [price2023gencast]
+sources: [price2023gencast, lippe2023pderefiner]
 related_concepts: ["Long-Rollout Evaluation", "Diffusion World Model", "Conservation by Construction"]
 related_experiments: ["2026-11-23-gw-weather-climate-eval"]
 tags: [weather-climate, ensemble, CRPS, spread-skill, rank-histogram, evaluation]
@@ -37,6 +37,11 @@ GenCast (50 members) is near 1 and flat after 2 to 3 days, over-dispersed earlie
 because the target is a single deterministic analysis. All three diagnostics are
 averages: none checks that spread tracks error case by case, which is what the ADR's
 kill criterion needs, so that needs a separate correlation test.
+
+A trajectory-level precedent for that correlation test: [[lippe2023pderefiner]] samples
+32 rollouts per test trajectory and finds the time when samples decorrelate predicts
+the time the rollout stays accurate (R^2 = 0.86, KS equation, single model). It is
+whole-rollout decorrelation time, not per-cell spread against error.
 
 ## Connections
 
