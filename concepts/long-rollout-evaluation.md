@@ -3,7 +3,7 @@ kind: concept
 name: "Long-Rollout Evaluation"
 status: seedling
 added: "2026-11-24"
-sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can]
+sources: [li2025smallworlds, pedersen2025thermalizer, lehmann2026can, wattmeyer2024ace2]
 related_concepts: ["Exposure Bias", "Diffusion Forcing", "Spatial Memory"]
 related_experiments: ["2026-11-23-gw-drift-df-vs-tf", "2026-11-23-gw-weather-climate-eval"]
 tags: [evaluation, benchmark, rollout, horizon, state-space, weather-climate]
@@ -61,6 +61,15 @@ imports the split. Evidence so far:
   ([[lehmann2026can]]). A one-step contraction probe (ADR 0002) is still
   untested as a predictor of survival. If it earns its own page, split it out
   as a concept then.
+- Training loss versus climate, again: [[wattmeyer2024ace2]] (App. A.4) trains an
+  emulator on two-step rollouts; all models trained are reported indefinitely stable
+  (one run to 1000 years), yet 10-year climate error does not fall with more training while
+  validation loss does, and one of four seeds is much worse. The authors select
+  checkpoints on time-mean RMSE, and report error as a multiple of the reference
+  model's own two-sample variability (1.1 to 1.5x), a noise-floor yardstick.
+- Stability claims need a drift test, not only "did not blow up": the first ACE
+  was "stable for 100 years" yet showed seasonal-amplitude swings and
+  surface-pressure drift (as reported in ACE2).
 
 ## Connections
 
