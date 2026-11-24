@@ -3,7 +3,7 @@ kind: concept
 name: "Bidirectional vs Causal Video Diffusion"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, huang2025self, song2025history]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, huang2025self, song2025history, zhao2026miniworld]
 related_concepts: ["Few-Step Distillation for Real-Time Rollout", "Diffusion Forcing", "Exposure Bias", "Novel View Prediction"]
 related_experiments: []
 tags: [video-diffusion, attention, interactivity, dit]
@@ -55,3 +55,7 @@ interactive world models.
 - Correction to "diffusion forcing = causal": DFoT keeps a non-causal
   transformer and recovers flexible conditioning purely from per-frame noise
   ([[song2025history]]). Causality and per-frame noise are separate choices.
+- MiniWorld trains the causal model from scratch instead of post-training a
+  bidirectional one, avoiding distillation; an 8-chunk in-flight window with
+  rolling KV cache gives 7.3 FPS at 1B (cfg off) versus 3.3 FPS for the full
+  window ([[zhao2026miniworld]]).

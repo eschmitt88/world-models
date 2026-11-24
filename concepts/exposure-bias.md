@@ -3,7 +3,7 @@ kind: concept
 name: "Exposure Bias"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, guo2025mineworld, zhang2025matrix, yin2024from, bruce2024genie, chen2024diffusion, huang2025self, alonso2024diffusion, li2025smallworlds, zhao2026miniworld]
 related_concepts: ["Diffusion Forcing", "Bidirectional vs Causal Video Diffusion"]
 related_experiments: []
 tags: [autoregressive, drift, train-test-mismatch, rollout]
@@ -55,3 +55,9 @@ world models.
   context off the inference distribution. CausVid is the earlier
   DF-based version, which Self Forcing says matches the wrong distribution
 - Scheduled sampling: the older sequence-modeling fix
+
+- MiniWorld claims DF training reduces drift versus a bidirectional
+  sliding-window baseline, but errors still accumulate past 253 frames
+  (geometry and fidelity fall first) and it lists self-forcing-style
+  alignment as future work; no TF arm, so the DF-vs-TF effect is untested
+  there ([[zhao2026miniworld]]).

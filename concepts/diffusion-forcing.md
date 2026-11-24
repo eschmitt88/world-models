@@ -3,7 +3,7 @@ kind: concept
 name: "Diffusion Forcing"
 status: seedling
 added: "2026-11-22"
-sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, worldlabs-ai-atlas, yin2024from, chen2024diffusion, song2025history, huang2025self, xiao2025worldmem, li2025smallworlds]
+sources: [welch2026fei-fei-li-atlas, oasis-model-github-io-oasis, worldlabs-ai-atlas, yin2024from, chen2024diffusion, song2025history, huang2025self, xiao2025worldmem, li2025smallworlds, zhao2026miniworld]
 related_concepts: ["Exposure Bias", "Bidirectional vs Causal Video Diffusion", "Novel View Prediction"]
 related_experiments: []
 tags: [autoregressive-diffusion, training-objective, noise-schedule, rollout-stability]
@@ -63,3 +63,9 @@ unverified).
 - [[Novel View Prediction]]: Atlas's target, trained this way
 - Testable on 16 GB: drift vs rollout length, and vs the noise level assigned
   to context frames at inference
+
+- MiniWorld is a from-scratch open recipe: block-causal DiT, chunk-wise DF with
+  a *non-decreasing* noise schedule (CoPP), rolling KV cache; checkpoints at
+  0.5B and 1B are public. Its drift evidence is against a bidirectional
+  sliding window only, with no teacher-forcing or schedule ablation
+  ([[zhao2026miniworld]]).
