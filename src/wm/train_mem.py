@@ -90,11 +90,15 @@ def train(args):
     g = torch.Generator().manual_seed(args.seed)
     start, step, lw, lt = time.time(), 0, 0.0, time.time()
     while time.time() - start < args.hours * 3600:
-        x0, act, rel, nm = batch(world, args.arm, args.batch, g, pool)
         for pg in opt.param_groups: pg["lr"] = args.lr * min(1.0, (step + 1) / 1000)
-        with torch.autocast("cuda", torch.bfloat16):
-            loss = loss_mem(model, x0, act, rel, nm)
-        loss.backward(); torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        lacc = 0.0
+        for _ in range(args.accum):
+            x0, act, rel, nm = batch(world, args.arm, args.batch // args.accum, g, pool)
+            with torch.autocast("cuda", torch.bfloat16):
+                loss = loss_mem(model, x0, act, rel, nm) / args.accum
+            loss.backward(); lacc += loss.item()
+        loss = torch.tensor(lacc)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step(); opt.zero_grad(set_to_none=True)
         with torch.no_grad():
             dk = min(0.999, (1 + step) / (10 + step))
@@ -192,6 +196,7 @@ if __name__ == "__main__":
     ap.add_argument("--out"); ap.add_argument("--arm", default="mem"); ap.add_argument("--hours", type=float, default=1.0)
     ap.add_argument("--d", type=int, default=384); ap.add_argument("--depth", type=int, default=8); ap.add_argument("--heads", type=int, default=6)
     ap.add_argument("--batch", type=int, default=32); ap.add_argument("--lr", type=float, default=3e-4)
+    ap.add_argument("--accum", type=int, default=2, help="gradient-accumulation micro-batches (effective batch = batch)")
     ap.add_argument("--n_maps", type=int, default=2000); ap.add_argument("--shading", type=float, default=0.25)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--eval", nargs="+"); ap.add_argument("--gaps", nargs="+", type=int, default=[8, 24, 48, 96])
